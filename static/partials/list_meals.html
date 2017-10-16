@@ -1,0 +1,50 @@
+<div class="row">
+    <div ng-if="statusCode == 200">
+        <div class="alert alert-success">
+            <p><strong> Sikeres rendelés!</strong></p>
+        </div>
+    </div>
+    <div class="col-xs-10">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>kaja</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="meal in meals">
+                <td>{{ meal.meal_name }} {{ meal.meal_price }}</td>
+                <td>
+                    <button ng-click="addToCart(meal)">Kosárba</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-xs-2">
+        <span class="glyphicon glyphicon-shopping-cart text-center" style="font-size: 3em"></span>
+        <div ng-show="cart.length == 0">
+            <p>A kosarad üres.</p>
+        </div>
+        <div ng-show="cart.length != 0">
+            <table class="table table-striped">
+                <thead>
+                </thead>
+                <tbody>
+                <tr ng-repeat="meal in cart track by $index">
+                    <td class="meal">{{ meal.meal_name }} <span class="price">{{ meal.meal_price }}</span></td>
+                </tr>
+                <tr>
+                    <td>Végösszeg: {{ amount }} </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button class="btn btn-default" ng-click="checkout()">Fizetés</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
