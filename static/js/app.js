@@ -23,8 +23,42 @@ app.config(function ($stateProvider) {
             templateUrl: "/static/partials/list_meals.html",
             controller: "mealsController"
         })
+        .state("/addRestaurant", {
+            url: "/addRestaurant",
+            templateUrl: "/static/partials/add_restaurant.html",
+            controller: "restaurantController"
+        })
 });
+
+app.controller("mainController", function ($scope, $rootScope, $http, $stateParams) {
+    $rootScope.loginUser = {};
+});
+
+
 app.controller("userController", function ($scope, $rootScope, $http, $state) {
+    console.log($rootScope.user)
+
+    $scope.login = function () {
+        console.log($rootScope.loginUser)
+        $http.post("/login", $rootScope.loginUser).then(
+            function (response) {
+                $scope.statusCode = response.status;
+                if ($scope.statusCode === 200) {
+                    $rootScope.user = angular.copy(response.data);
+                    console.log($rootScope.user)
+                    $rootScope.loginUser = {};
+                    $state.go("")
+                }
+            },
+            function (response) {
+                $scope.statusCode = response.status;
+                if ($scope.statusCode === 401) {
+                }
+            }
+        );
+    }
+
+
     $scope.registration = function () {
         $http.post("/registration", $scope.user).then(
             function (response) {
@@ -59,6 +93,15 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
             $scope.payments = response.data;
         });
 
+    $scope.addRestaurant = function () {
+        $http.post("/addRestaurant", $scope.restaurant).then(
+            function (response) {
+                $scope.statusCode = response.status;
+            },
+            function (response) {
+                $scope.statusCode = response.status;
+            });
+    };
 });
 
 app.controller("mealsController", function ($scope, $rootScope, $http, $state, $stateParams) {

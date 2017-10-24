@@ -1,0 +1,52 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">
+            <h1>Étterem hozzáadása</h1>
+            <form ng-submit="addRestaurant()">
+                <div class="form-group">
+                    <div class="media-left media-middle"><label for="restaurantNameField" class="col-md-2 col-form-label">Étterem neve</label></div>
+                    <div class="media-body">
+                        <input type="text" class="form-control" id="restaurantNameField" placeholder="Étterem neve" ng-model="restaurant.restaurant_name" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="media-left media-middle"><label for="restaurantDescriptionField" class="col-md-2 col-form-label">Étterem leírása</label></div>
+                    <div class="media-body">
+                        <input type="text" class="form-control" id="restaurantDescriptionField" placeholder="Leírás" ng-model="restaurant.restaurant_description" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="media-left media-middle"><label for="addressCityField" class="col-md-2 col-form-label">Város</label></div>
+                    <div class="media-body">
+                        <input type="text" class="form-control" id="addressCityField" placeholder="Város" ng-model="restaurant.address.address_city" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="media-left media-middle"><label for="addressStreetField" class="col-md-2 col-form-label">Utca</label></div>
+                    <div class="media-body">
+                        <input type="text" class="form-control" id="addressStreetField" placeholder="Utca" ng-model="restaurant.address.address_street" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="media-left media-middle"><label for="addressNumberField" class="col-md-2 col-form-label">Telefonszám</label></div>
+                    <div class="media-body">
+                        <input type="text" class="form-control" id="addressNumberField" placeholder="Házszám" ng-model="restaurant.address.address_number" required>
+                    </div>
+                </div>
+                <div ng-if="statusCode == 409">
+                    <div class="alert alert-warning">
+                        <p><strong>Warning!</strong> Ez az étterem név már foglalt.</p>
+                    </div>
+                </div>
+                <div ng-if="statusCode == 200">
+                    <div class="alert alert-success">
+                        <p><strong> Sikeresen hozzáadta az éttermet!</strong></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                <button type="submit" class="btn btn-default" ng-controller="restaurantController"><i class="glyphicon glyphicon-ok"></i> Felvitel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

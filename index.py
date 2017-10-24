@@ -1,4 +1,4 @@
-from flask import Flask, send_file, request, redirect, render_template, make_response, Response
+from flask import Flask, send_file, request, redirect, render_template, make_response, Response, session, url_for
 from app import app, db
 from models import User, Restaurant, Meal, Order, Order_meals, Address, PaymentTable, Payment
 import json
@@ -6,6 +6,7 @@ import logging
 import datetime
 import time
 
+user = ""
 log = logging.getLogger(__name__)
 
 
@@ -65,8 +66,31 @@ def get_users():
     return response
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    user_result = User.query.all()
+    users = []
+    print(user_result)
+    login_user = request.json
+
+    for i in user_result:
+        if login_user['username'] == i.user_name and login_user['password'] == i.password:
+            session['username'] = login_user['username']
+            global user;
+            user = 1
+            break;
+    if user != 1:
+        response = Response(status=401)
+        return response
+    else:
+        # print(session['username'])
+        response = Response(response=json.dumps(session['username']), status=200, mimetype='application/json')
+        return response
+
+
 @app.route('/restaurants', methods=['GET'])
 def get_restaurants():
+    # print(session['username'])
     restaurant_result = Restaurant.query.all()
     restaurants = [{'restaurant_id': restaurant.restaurant_id, 'restaurant_name': restaurant.restaurant_name,
                     'restaurant_city': restaurant.address.address_city,
@@ -110,7 +134,7 @@ def get_cities():
         cities.append({'city_name': i.address_city})
         # cities.append(i.address_city)
     response = Response(response=json.dumps(cities), status=200, mimetype='application/json')
-    #print(cities)
+    # print(cities)
     return response
 
 
@@ -119,7 +143,7 @@ def get_payments():
     payments_result = PaymentTable.query.filter(PaymentTable.restaurant_id == 1).all()
     payments = []
     for i in payments_result:
-        if(i.cash == True):
+        if (i.cash == True):
             payments.append({'cash': Payment.CASH.value})
         if (i.creditcard == True):
             payments.append({'creditcard': Payment.CREDITCARD.value})
@@ -131,6 +155,39 @@ def get_payments():
     print(payments)
     return response
 
+
+@app.route('/addRestaurant', methods=['POST'])
+def addRestaurant():
+    newRestaurant = request.json
+    new_address = Address(address_city=newRestaurant['address']['address_city'],
+                          address_street=newRestaurant['address']['address_street'],
+                          address_number=newRestaurant['address']['address_number'])
+    db.session.add(new_address)
+    db.session.commit()
+    restaurant = Restaurant.query.filter(Restaurant.restaurant_name == newRestaurant['restaurant_name']).first()
+    print(newRestaurant)
+    if restaurant is not None:
+        response = Response(status=409)
+        return response
+    else:
+        new_restaurant = Restaurant(restaurant_name=newRestaurant['restaurant_name'],
+                                    restaurant_description=newRestaurant['restaurant_description'],
+                                    address_id=new_address.address_id)
+        db.session.add(new_restaurant)
+        db.session.commit()
+    response = Response(status=200)
+    return response
+
+
+@app.route('/addMeal', methods=['POST'])
+def addMeal():
+    newMeal = request.json
+    new_meal = Restaurant(meal_name=newMeal['meal_name'],
+                                meal_description=newMeal['meal_description'])
+    db.session.add(new_meal)
+    db.session.commit()
+    response = Response(status=200)
+    return response
 
 if __name__ == '__main__':
     app.run()
