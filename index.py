@@ -92,10 +92,17 @@ def login():
 def get_restaurants():
     # print(session['username'])
     restaurant_result = Restaurant.query.all()
-    restaurants = [{'restaurant_id': restaurant.restaurant_id, 'restaurant_name': restaurant.restaurant_name,
+    restaurants = [{'restaurant_id': restaurant.restaurant_id,
+                    'restaurant_name': restaurant.restaurant_name,
+                    'restaurant_description': restaurant.restaurant_description,
                     'restaurant_city': restaurant.address.address_city,
                     'restaurant_street': restaurant.address.address_street,
-                    'restaurant_number': restaurant.address.address_number} for restaurant in restaurant_result]
+                    'restaurant_number': restaurant.address.address_number,
+                    'banner': restaurant.banner,
+                    'delivery_price': restaurant.delivery_price,
+                    'delivery_min_time': restaurant.delivery_min_time,
+                    'delivery_max_time': restaurant.delivery_max_time,
+                    'min_order': restaurant.min_order} for restaurant in restaurant_result]
     response = Response(response=json.dumps(restaurants), status=200, mimetype='application/json')
     return response
 
@@ -128,7 +135,7 @@ def get_orders():
 
 @app.route('/cities', methods=['GET'])
 def get_cities():
-    cities_result = Address.query.filter(Address.restaurant_id >= 1).all()
+    cities_result = Address.query.with_entities(Address.address_city).filter(Address.restaurant_id >= 1).distinct()
     cities = []
     for i in cities_result:
         cities.append({'city_name': i.address_city})
@@ -159,11 +166,6 @@ def get_payments():
 @app.route('/addRestaurant', methods=['POST'])
 def addRestaurant():
     newRestaurant = request.json
-    new_address = Address(address_city=newRestaurant['address']['address_city'],
-                          address_street=newRestaurant['address']['address_street'],
-                          address_number=newRestaurant['address']['address_number'])
-    db.session.add(new_address)
-    db.session.commit()
     restaurant = Restaurant.query.filter(Restaurant.restaurant_name == newRestaurant['restaurant_name']).first()
     print(newRestaurant)
     if restaurant is not None:
@@ -171,9 +173,14 @@ def addRestaurant():
         return response
     else:
         new_restaurant = Restaurant(restaurant_name=newRestaurant['restaurant_name'],
-                                    restaurant_description=newRestaurant['restaurant_description'],
-                                    address_id=new_address.address_id)
+                                    restaurant_description=newRestaurant['restaurant_description'])
         db.session.add(new_restaurant)
+        db.session.commit()
+        new_address = Address(address_city=newRestaurant['address']['address_city'],
+                              address_street=newRestaurant['address']['address_street'],
+                              address_number=newRestaurant['address']['address_number'],
+                              restaurant_id=new_restaurant.restaurant_id)
+        db.session.add(new_address)
         db.session.commit()
     response = Response(status=200)
     return response
@@ -183,11 +190,12 @@ def addRestaurant():
 def addMeal():
     newMeal = request.json
     new_meal = Restaurant(meal_name=newMeal['meal_name'],
-                                meal_description=newMeal['meal_description'])
+                          meal_description=newMeal['meal_description'])
     db.session.add(new_meal)
     db.session.commit()
     response = Response(status=200)
     return response
+
 
 if __name__ == '__main__':
     app.run()

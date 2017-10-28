@@ -75,7 +75,9 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
     $http.get("/restaurants").then(
         function (response) {
             $scope.restaurants = response.data;
+            console.log($scope.restaurants)
         });
+
     $http.get("/users").then(
         function (response) {
             $scope.users = response.data;

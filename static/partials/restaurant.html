@@ -1,65 +1,87 @@
-<div ng-controller="userController" >
-<h2 ng-if="user !== undefined">Éttermek</h2>
-<form >
-<select class="form-control" ng-model="city" ng-options="city.city_name for city in cities">
-</select>
-</form>
+<div ng-controller="userController">
+    <h2>Éttermek</h2>
+    <form>
+        <select class="form-control" ng-model="city" ng-options="city.city_name for city in cities">
+            <option value="" disabled selected>Válassz várost</option>
+        </select>
+    </form>
 
-<table class="table table-striped" >
-    <thead>
-    <tr>
-        <th>Név</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr ng-repeat="restaurant in restaurants | filter: city.city_name">
-        <td><a href="#/list-meals/{{ restaurant.restaurant_id }}" >{{ restaurant.restaurant_name }}</a></td>
-        <td>{{ restaurant.restaurant_city }}</td>
-        <td>{{ restaurant.restaurant_id }}</td>
-        <td>{{ restaurant.restaurant_number }}</td>
-    </tr>
-    </tbody>
-</table>
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <th>Név</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr ng-repeat="user in users">
-        <td>{{ user.user_name }}</td>
-        <td ng-repeat="address in user.user_addresses">
-            {{ address.address_city }} {{ address.address_street }}, {{ address.address_number }} </td>
-    </tr>
-    </tbody>
-</table>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Részletes adatok</th>
+            <th></th>
+            <th>Cím</th>
+            <th>Szállítási költség</th>
+            <th>Várható szzállítási idő</th>
+            <th>Minimális rendelés</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="restaurant in restaurants | filter: city.city_name">
+            <td><img src="{{ restaurant.banner }}" width="250px" height="110px"></td>
+            <td><a href="#/list-meals/{{ restaurant.restaurant_id }}"><h3>{{ restaurant.restaurant_name }}</h3></a>
+                {{ restaurant.restaurant_description }}</td>
+            <td style="vertical-align: middle">{{ restaurant.restaurant_city }}, {{ restaurant.restaurant_street }} {{ restaurant.restaurant_number }}</td>
+            <td style="vertical-align: middle">
+                <div ng-if="restaurant.delivery_price === ''">Ingyenes</div>
+                <div ng-if="restaurant.delivery_price !== ''">{{ restaurant.delivery_price }} Ft</div>
+            </td>
+            <td style="vertical-align: middle">
+                <div ng-if="restaurant.delivery_min_time !== restaurant.delivery_max_time">{{ restaurant.delivery_min_time }}
+                    - {{ restaurant.delivery_max_time }} perc
+                </div>
+                <div ng-if="restaurant.delivery_min_time === restaurant.delivery_max_time">{{ restaurant.delivery_max_time }}
+                    perc
+                </div>
+            </td>
+            <td style="vertical-align: middle">{{ restaurant.min_order }} Ft</td>
+            <td style="vertical-align: middle"><a href="#/list-meals/{{ restaurant.restaurant_id }}">
+                <button class="btn btn-info">Innen rendelek</button>
+            </a></td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Név</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="user in users">
+            <td>{{ user.user_name }}</td>
+            <td ng-repeat="address in user.user_addresses">
+                {{ address.address_city }} {{ address.address_street }}, {{ address.address_number }} </td>
+        </tr>
+        </tbody>
+    </table>
 
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <th>Név</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr ng-repeat="order in orders">
-        <td>{{ order.order_id }}</td>
-        <td ng-repeat="meals in order.order_meals">
-            {{ meals.meal_name }}</td>
-    </tr>
-    </tbody>
-</table>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Név</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="order in orders">
+            <td>{{ order.order_id }}</td>
+            <td ng-repeat="meals in order.order_meals">
+                {{ meals.meal_name }}</td>
+        </tr>
+        </tbody>
+    </table>
 
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <th>payment</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr ng-repeat="(k,data) in payments">
-        <td>{{data}}</td>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>payment</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="(k,data) in payments">
+            <td>{{ data }}</td>
 
-    </tbody>
-</table>
+        </tbody>
+    </table>
 </div>

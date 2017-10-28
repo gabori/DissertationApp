@@ -1,21 +1,24 @@
 <div class="row">
     <div ng-if="statusCode == 200">
         <div class="alert alert-success">
-            <p><strong> Sikeres rendelés!</strong></p>
+            <p><strong>Sikeres rendelés!</strong></p>
         </div>
     </div>
     <div class="col-xs-10">
+        <h2>Étlap</h2>
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>kaja</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="meal in meals">
-                <td>{{ meal.meal_name }} {{ meal.meal_price }}</td>
-                <td>
-                    <button ng-click="addToCart(meal)">Kosárba</button>
+                <td class="col-md-2"><img src="{{ meal.image_source }}" width="175px" height="77x"></td>
+                <td class="col-md-7"><h4><strong>{{ meal.meal_name }}</strong></h4> {{ meal.meal_description }}</td>
+                <td style="vertical-align: middle"><strong>{{ meal.meal_price }} Ft</strong></td>
+                <td style="vertical-align: middle">
+                    <button class="btn btn-info" ng-click="addToCart(meal)">Kosárba</button>
                 </td>
             </tr>
             </tbody>

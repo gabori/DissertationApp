@@ -1,7 +1,7 @@
 import json
 
 from app import db
-from sqlalchemy import Table, Column, Integer, ForeignKey, String, Float, Date,Boolean
+from sqlalchemy import Table, Column, Integer, ForeignKey, String, Float, Date, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from enum import Enum
@@ -51,9 +51,13 @@ class Restaurant(db.Model):
     restaurant_name = Column(String)
     restaurant_description = Column(String)
     banner = Column(String)
+    min_order = Column(Integer)
+    delivery_price = Column(Integer)
+    delivery_min_time = Column(Integer)
+    delivery_max_time = Column(Integer)
     user = relationship("User")
-    address_id = Column(Integer, ForeignKey('addresses.address_id'))
-    #payment_id = Column(Integer, ForeignKey('payments.payment_id'))
+    #address_id = Column(Integer, ForeignKey('addresses.address_id'))
+    # payment_id = Column(Integer, ForeignKey('payments.payment_id'))
 
     payment = relationship(
         'PaymentTable',
@@ -68,8 +72,8 @@ class Restaurant(db.Model):
         uselist=True, viewonly=True)
     address = relationship(
         'Address',
-        primaryjoin='Restaurant.address_id==Address.address_id',
-        foreign_keys='(Restaurant.address_id)',
+        primaryjoin='Restaurant.restaurant_id==Address.restaurant_id',
+        foreign_keys='(Restaurant.restaurant_id)',
         uselist=False, viewonly=True)
 
     # meals = relationship("Meal", backref ="restaurant")
@@ -81,7 +85,10 @@ class Restaurant(db.Model):
             'restaurant_name': self.restaurant_name,
             'restaurant_description': self.restaurant_description,
             'banner': self.banner,
-
+            'min_order': self.min_order,
+            'delivery_price': self.delivery_price,
+            'delivery_min_time': self.delivery_min_time,
+            'delivery_max_time': self.delivery_max_time
         }
         return fields
 
