@@ -15,6 +15,7 @@ class User(db.Model):
     first_name = Column(String)
     last_name = Column(String)
     user_name = Column(String)
+    user_role = Column(String)
     password = Column(String)
     phone_number = Column(String)
     email = Column(String)
@@ -35,6 +36,7 @@ class User(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'user_name': self.user_name,
+            'user_role' : self.user_role,
             'password': self.password,
             'phone_number': self.phone_number,
             'email': self.email

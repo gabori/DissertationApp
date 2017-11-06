@@ -69,13 +69,11 @@ def get_users():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     user_result = User.query.all()
-    users = []
-    print(user_result)
-    login_user = request.json
+    current_user = request.json
 
     for i in user_result:
-        if login_user['username'] == i.user_name and login_user['password'] == i.password:
-            session['username'] = login_user['username']
+        if current_user['username'] == i.user_name and current_user['password'] == i.password:
+            login_user = {'username': i.user_name, 'password': i.password, 'user_role': i.user_role}
             global user;
             user = 1
             break;
@@ -83,8 +81,7 @@ def login():
         response = Response(status=401)
         return response
     else:
-        # print(session['username'])
-        response = Response(response=json.dumps(session['username']), status=200, mimetype='application/json')
+        response = Response(response=json.dumps(login_user), status=200, mimetype='application/json')
         return response
 
 

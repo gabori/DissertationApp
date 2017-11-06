@@ -1,12 +1,30 @@
 /**
  * Created by Gabori Peter on 2017. 09. 14..
  */
-var app = angular.module("restaurants", ["ui.router"]);
+angular.module('Authentication', []);
+
+var app = angular.module("restaurants", ["Authentication", "ngCookies", "ui.router"]).run(['$rootScope', '$location', '$cookieStore', '$http',
+    function ($rootScope, $location, $cookieStore, $http) {
+        // keep user logged in after page refresh
+        $rootScope.globals = $cookieStore.get('globals') || {};
+        if ($rootScope.globals.currentUser) {
+            $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.username; // jshint ignore:line
+        }
+
+        $rootScope.$on('$locationChangeStart', function (event, next, current) {
+            // redirect to login page if not logged in
+            if ($location.path() !== '' && !$rootScope.globals.currentUser) {
+                $location.path('');
+            }
+        });
+    }]);
+;
 app.config(function ($stateProvider) {
     $stateProvider
         .state("/", {
             url: "",
-            templateUrl: "/static/partials/home.html"
+            templateUrl: "/static/partials/home.html",
+            controller: "loginController"
         })
         .state("/registration", {
             url: "/registration",
@@ -34,30 +52,29 @@ app.controller("mainController", function ($scope, $rootScope, $http, $statePara
     $rootScope.loginUser = {};
 });
 
+app.controller("loginController", ['$scope', '$rootScope', '$location', 'AuthenticationService',
+    function ($scope, $rootScope, $location, AuthenticationService) {
+        // reset login status
+        AuthenticationService.ClearCredentials();
+
+        $scope.login = function () {
+            $scope.dataLoading = true;
+            AuthenticationService.Login($scope.username, $scope.password, function (response) {
+                console.log(response)
+                if (response.status == 200) {
+                    $scope.user_role = response.data.user_role
+                    AuthenticationService.SetCredentials($scope.username, $scope.password, $scope.user_role);
+                    $location.path('/restaurant');
+                } else {
+                    $scope.error = response.message;
+                    $scope.dataLoading = false;
+                }
+            });
+        };
+    }]);
 
 app.controller("userController", function ($scope, $rootScope, $http, $state) {
     console.log($rootScope.user)
-
-    $scope.login = function () {
-        console.log($rootScope.loginUser)
-        $http.post("/login", $rootScope.loginUser).then(
-            function (response) {
-                $scope.statusCode = response.status;
-                if ($scope.statusCode === 200) {
-                    $rootScope.user = angular.copy(response.data);
-                    console.log($rootScope.user)
-                    $rootScope.loginUser = {};
-                    $state.go("")
-                }
-            },
-            function (response) {
-                $scope.statusCode = response.status;
-                if ($scope.statusCode === 401) {
-                }
-            }
-        );
-    }
-
 
     $scope.registration = function () {
         $http.post("/registration", $scope.user).then(
