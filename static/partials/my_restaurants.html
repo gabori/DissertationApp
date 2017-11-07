@@ -1,14 +1,10 @@
-<div ng-if="globals.currentUser.user_role !== 'user'">
+<div ng-if="globals.currentUser.user_role !== 'admin'">
     <p class="alert alert-warning">Az oldal megtekintéséhez nincs jogosultságod!</p>
 </div>
 
-<div ng-if="globals.currentUser.username !== undefined && globals.currentUser.user_role === 'user'" ng-controller="userController">
-    <h2>Éttermek</h2>
-    <form>
-        <select class="form-control" ng-model="city" ng-options="city.city_name for city in cities">
-            <option value="" disabled selected>Válassz várost</option>
-        </select>
-    </form>
+<div ng-if="globals.currentUser.username !== undefined && globals.currentUser.user_role === 'admin'"
+     ng-controller="restaurantController">
+    <h2>Éttermeim</h2>
 
     <table class="table table-striped">
         <thead>
@@ -23,9 +19,9 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="restaurant in restaurants | filter: city.city_name">
+        <tr ng-repeat="restaurant in my_restaurants">
             <td><img src="{{ restaurant.banner }}" width="250px" height="110px"></td>
-            <td><a href="#/list-meals/{{ restaurant.restaurant_id }}"><h3>{{ restaurant.restaurant_name }}</h3></a>
+            <td><h3>{{ restaurant.restaurant_name }}</h3>
                 {{ restaurant.restaurant_description }}</td>
             <td style="vertical-align: middle">{{ restaurant.restaurant_city }}, {{ restaurant.restaurant_street }} {{ restaurant.restaurant_number }}</td>
             <td style="vertical-align: middle">
@@ -41,24 +37,12 @@
                 </div>
             </td>
             <td style="vertical-align: middle">{{ restaurant.min_order }} Ft</td>
-            <td style="vertical-align: middle"><a href="#/list-meals/{{ restaurant.restaurant_id }}">
-                <button class="btn btn-info">Innen rendelek</button>
-            </a><a href="#/list-meals/{{ restaurant.restaurant_id }}">
-                <button class="btn btn-info">Étterem szerkesztése</button>
+            <td style="vertical-align: middle"><a href="#/setting-meals/{{ restaurant.restaurant_id }}">
+                <button class="btn btn-info btn-block">Étlap szerkesztése</button>
+            </a><a href="#">
+                <button class="btn btn-info btn-block">Étterem szerkesztése</button>
             </a></td>
         </tr>
-        </tbody>
-    </table>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>payment</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="(k,data) in payments">
-            <td>{{ data }}</td>
-
         </tbody>
     </table>
 </div>

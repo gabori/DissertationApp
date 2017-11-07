@@ -20,13 +20,19 @@ class User(db.Model):
     phone_number = Column(String)
     email = Column(String)
 
+    restaurants = relationship(
+        'Restaurant',
+        primaryjoin='Restaurant.user_id==User.user_id',
+        foreign_keys='(User.user_id)',
+        uselist=True, viewonly=True)
+
     addresses = relationship(
         'Address',
         primaryjoin='User.user_id==Address.user_id',
         foreign_keys='(User.user_id)',
         uselist=True, viewonly=True)
 
-    restaurantID = Column(Integer, ForeignKey('restaurants.restaurant_id'))
+    # restaurantID = Column(Integer, ForeignKey('restaurants.restaurant_id'))
 
     # addresses = relationship("Address", back_populates="user")
 
@@ -57,9 +63,16 @@ class Restaurant(db.Model):
     delivery_price = Column(Integer)
     delivery_min_time = Column(Integer)
     delivery_max_time = Column(Integer)
-    user = relationship("User")
-    #address_id = Column(Integer, ForeignKey('addresses.address_id'))
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+    # user = relationship("User")
     # payment_id = Column(Integer, ForeignKey('payments.payment_id'))
+
+    user = relationship(
+        'User',
+        primaryjoin='Restaurant.user_id==User.user_id',
+        foreign_keys='(Restaurant.user_id)',
+        uselist=False, viewonly=True
+    )
 
     payment = relationship(
         'PaymentTable',

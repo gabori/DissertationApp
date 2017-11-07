@@ -104,6 +104,27 @@ def get_restaurants():
     return response
 
 
+@app.route('/myRestaurant', methods=['GET'])
+def get_my_restaurant():
+    current_username = request.args.get('username')
+    print(current_username)
+    user = User.query.filter(User.user_name == current_username).first()
+    restaurant_result = Restaurant.query.filter(Restaurant.user_id == user.user_id).all()
+    restaurants = [{'restaurant_id': restaurant.restaurant_id,
+                    'restaurant_name': restaurant.restaurant_name,
+                    'restaurant_description': restaurant.restaurant_description,
+                    'restaurant_city': restaurant.address.address_city,
+                    'restaurant_street': restaurant.address.address_street,
+                    'restaurant_number': restaurant.address.address_number,
+                    'banner': restaurant.banner,
+                    'delivery_price': restaurant.delivery_price,
+                    'delivery_min_time': restaurant.delivery_min_time,
+                    'delivery_max_time': restaurant.delivery_max_time,
+                    'min_order': restaurant.min_order} for restaurant in restaurant_result]
+    response = Response(response=json.dumps(restaurants), status=200, mimetype='application/json')
+    return response
+
+
 @app.route('/meals', methods=['GET'])
 def get_meals():
     restaurant_id = request.args.get('restaurant_id')
@@ -186,9 +207,25 @@ def addRestaurant():
 @app.route('/addMeal', methods=['POST'])
 def addMeal():
     newMeal = request.json
-    new_meal = Restaurant(meal_name=newMeal['meal_name'],
-                          meal_description=newMeal['meal_description'])
+
+    print(newMeal)
+    user = User.query.filter(User.user_name == newMeal['username']).first()
+
+    restaurant = Restaurant.query.filter(user.user_id == Restaurant.user_id).first()
+    new_meal = Meal(meal_name=newMeal['meal_name'],
+                    meal_description=newMeal['meal_description'],
+                    meal_price=newMeal['meal_price'],
+                    restaurant_id=restaurant.restaurant_id)
     db.session.add(new_meal)
+    db.session.commit()
+    response = Response(status=200)
+    return response
+
+
+@app.route('/removeMeal', methods=['POST'])
+def removeMeal():
+    removable_meal = request.json
+    Meal.query.filter(Meal.meal_id == removable_meal['meal_id']).delete()
     db.session.commit()
     response = Response(status=200)
     return response

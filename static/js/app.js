@@ -26,6 +26,10 @@ app.config(function ($stateProvider) {
             templateUrl: "/static/partials/home.html",
             controller: "loginController"
         })
+        .state("/startpage", {
+            url: "/startpage",
+            templateUrl: "/static/partials/startpage.html"
+        })
         .state("/registration", {
             url: "/registration",
             templateUrl: "/static/partials/registration.html",
@@ -36,10 +40,25 @@ app.config(function ($stateProvider) {
             templateUrl: "/static/partials/restaurant.html",
             controller: "restaurantController"
         })
+        .state("/myRestaurant", {
+            url: "/myRestaurant/:username",
+            templateUrl: "/static/partials/my_restaurants.html",
+            controller: "restaurantController"
+        })
         .state("/list-meals", {
             url: "/list-meals/:restaurant_id",
             templateUrl: "/static/partials/list_meals.html",
             controller: "mealsController"
+        })
+        .state("/setting-meals", {
+            url: "/setting-meals/:restaurant_id",
+            templateUrl: "/static/partials/setting_meals.html",
+            controller: "mealsSettingController"
+        })
+        .state("/add-meal", {
+            url: "/add-meal",
+            templateUrl: "/static/partials/add_meal.html",
+            controller: "mealsAddController"
         })
         .state("/addRestaurant", {
             url: "/addRestaurant",
@@ -64,7 +83,7 @@ app.controller("loginController", ['$scope', '$rootScope', '$location', 'Authent
                 if (response.status == 200) {
                     $scope.user_role = response.data.user_role
                     AuthenticationService.SetCredentials($scope.username, $scope.password, $scope.user_role);
-                    $location.path('/restaurant');
+                    $location.path('/startpage');
                 } else {
                     $scope.error = response.message;
                     $scope.dataLoading = false;
@@ -93,6 +112,11 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
         function (response) {
             $scope.restaurants = response.data;
             console.log($scope.restaurants)
+        });
+
+    $http.get("/myRestaurant", {params: {username: $stateParams.username}}).then(
+        function (response) {
+            $scope.my_restaurants = response.data;
         });
 
     $http.get("/users").then(
@@ -148,4 +172,41 @@ app.controller("mealsController", function ($scope, $rootScope, $http, $state, $
             }
         );
     }
+});
+
+
+app.controller("mealsSettingController", function ($scope, $rootScope, $http, $state, $stateParams) {
+    $http.get("/meals", {params: {restaurant_id: $stateParams.restaurant_id}}).then(
+        function (response) {
+            $scope.meals = response.data;
+        });
+    $scope.removeMeal = function (meal) {
+        $scope.meal = meal
+        $http.post("/removeMeal", $scope.meal).then(
+            function (response) {
+                $state.reload();
+                $scope.statusCode = response.status;
+            },
+            function (response) {
+                $scope.statusCode = response.status;
+            }
+        );
+    };
+});
+
+
+app.controller("mealsAddController", function ($scope, $rootScope, $http, $state) {
+    console.log($scope.meal)
+    $scope.user = $rootScope.globals.currentUser.username
+    $scope.addMeal = function () {
+        $http.post("/addMeal", $scope.meal, $scope.user).then(
+            function (response) {
+                $scope.statusCode = response.status;
+            },
+            function (response) {
+                $scope.statusCode = response.status;
+            }
+        );
+    };
+
 });
