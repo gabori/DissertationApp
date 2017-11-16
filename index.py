@@ -4,7 +4,6 @@ from models import User, Restaurant, Meal, Order, Order_meals, Address, PaymentT
 import json
 import logging
 import datetime
-import time
 
 user = ""
 log = logging.getLogger(__name__)
@@ -36,15 +35,20 @@ def registration():
 @app.route('/checkout', methods=['POST'])
 def checkout():
     newOrder = request.json
-    print(newOrder)
+
     order_price = 0
-    for i in newOrder:
+    print("king")
+    for i in newOrder['cart']:
         order_price += i['meal_price']
-    new_Order = Order(oder_date=datetime.datetime.now(), user_id=None, order_price=order_price)
+        meal_id = i['meal_id']
+    meal = Meal.query.filter(Meal.meal_id == meal_id).first()
+    user = User.query.filter(User.user_name == newOrder['username']).first()
+    new_Order = Order(oder_date=datetime.datetime.now(), user_id=user.user_id, order_price=order_price,
+                      restaurant_id=meal.restaurant_id)
     db.session.add(new_Order)
     db.session.commit()
 
-    for i in newOrder:
+    for i in newOrder['cart']:
         new_order_meals = Order_meals(order_meals_quantity=1, order_meals_price=i['meal_price'], meal_id=i['meal_id'],
                                       order_id=new_Order.order_id)
         db.session.add(new_order_meals)
@@ -229,6 +233,70 @@ def removeMeal():
     db.session.commit()
     response = Response(status=200)
     return response
+
+
+@app.route('/myOrders', methods=['GET'])
+def get_my_orders():
+    username = request.args.get('username')
+    restaurant_id = request.args.get('restaurant_id')
+    user = User.query.filter(User.user_name == username).first()
+    restaurant = Restaurant.query.filter(Restaurant.restaurant_id == restaurant_id).first()
+    rest = []
+    rest.append({'restaurant_id': restaurant.restaurant_id, 'restaurant_name': restaurant.restaurant_name})
+    orders = []
+    orders_result = Order.query.filter(Order.restaurant_id == restaurant.restaurant_id).all()
+    print(orders_result)
+    for i in orders_result:
+        meals = []
+        for j in i.order_meals:
+            if j.order_id == i.order_id:
+                for k in j.meals:
+                    meals.append({'meal_name': k.meal_name})
+        customer = User.query.filter(User.user_id == i.user_id).first()
+        orders.append({'order_id': i.order_id, 'order_date': str(i.oder_date), 'order_meals': meals,
+                       'order_price': i.order_price, 'restaurant_id': i.restaurant_id,
+                       'restaurant': rest, 'user_id': customer.user_name})
+
+    response = Response(response=json.dumps(orders), status=200, mimetype='application/json')
+    print(orders)
+    return response
+
+
+@app.route('/userData', methods=['GET'])
+def userData():
+    username = request.args.get('username')
+    user = User.query.filter(User.user_name == username).first()
+    addresses = Address.query.filter(Address.user_id == user.user_id).all()
+    address = []
+    for i in addresses:
+        address.append({'address_id': i.address_id, 'address_type': i.address_type,
+                        'address_city': i.address_city, 'address_street': i.address_street,
+                        'address_number': i.address_number})
+    response_user = {'first_name': user.first_name, 'last_name': user.last_name, 'user_name': user.user_name,
+                     'password': user.password, 'email': user.email,
+                     'phone_number': user.phone_number, 'addresses': address}
+    print(response_user)
+    response = Response(response=json.dumps(response_user), status=200, mimetype='application/json')
+    return response
+
+
+@app.route('/editUser', methods=['POST'])
+def editUser():
+    params = request.json
+    user = User.query.filter(User.user_name == params['username']).first()
+    modified_user = params['modified_user']
+    print(modified_user)
+    if user.password == modified_user['current_password']:
+        if modified_user['new_password'] != modified_user['confirm_new_password']:
+            response = Response(status=409)
+            return response
+        user.password = modified_user['new_password']
+        db.session.commit()
+        response = Response(status=200)
+        return response
+    else:
+        response = Response(status=401)
+        return response
 
 
 if __name__ == '__main__':

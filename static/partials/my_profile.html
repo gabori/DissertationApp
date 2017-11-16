@@ -1,0 +1,37 @@
+<div class="col-xs-10">
+    <h2>Felhasználói adatok</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><strong>Teljes név</strong></td>
+            <td style="vertical-align: middle">{{ user.last_name }} {{ user.first_name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Felhasználónév</strong></td>
+            <td style="vertical-align: middle">{{ user.user_name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Email cím</strong></td>
+            <td style="vertical-align: middle">{{ user.email }}</td>
+        </tr>
+        <tr>
+            <td><strong>Telefonszám</strong></td>
+            <td style="vertical-align: middle">{{ user.phone_number }}</td>
+        </tr>
+        <tr>
+            <td><strong>Cím(ek)</strong></td>
+            <td style="vertical-align: middle"><span  ng-repeat="address in user.addresses">{{ address.address_type }}: {{ address.address_city }}
+                {{ address.address_street }} út {{ address.address_number}}.<br></span></td>
+        </tr>
+        <td></td>
+        <td><a href="#/edit-profile/{{ user.user_id }}">
+                <button class="btn btn-info btn-block">Jelszó módosítása</button>
+            </a></td>
+        </tbody>
+    </table>
+</div>
+

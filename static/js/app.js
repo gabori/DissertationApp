@@ -65,6 +65,22 @@ app.config(function ($stateProvider) {
             templateUrl: "/static/partials/add_restaurant.html",
             controller: "restaurantController"
         })
+        .state("/my-orders", {
+            url: "/my-orders/:restaurant_id",
+            templateUrl: "/static/partials/get_orders.html",
+            controller: "ordersController"
+        })
+        .state("/my-profile", {
+            url: "/my-profile",
+            templateUrl: "/static/partials/my_profile.html",
+            controller: "userProfileController"
+        })
+
+        .state("/edit-profile", {
+            url: "/edit-profile/:user_id",
+            templateUrl: "/static/partials/edit_password.html",
+            controller: "userSettingsController"
+        })
 });
 
 app.controller("mainController", function ($scope, $rootScope, $http, $stateParams) {
@@ -163,7 +179,8 @@ app.controller("mealsController", function ($scope, $rootScope, $http, $state, $
     };
 
     $scope.checkout = function () {
-        $http.post("/checkout", $scope.cart, $scope.amount).then(
+        var in_data = {'cart': $scope.cart, 'username': $rootScope.globals.currentUser.username};
+        $http.post("/checkout", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
             },
@@ -194,7 +211,6 @@ app.controller("mealsSettingController", function ($scope, $rootScope, $http, $s
     };
 });
 
-
 app.controller("mealsAddController", function ($scope, $rootScope, $http, $state) {
     console.log($scope.meal)
     $scope.user = $rootScope.globals.currentUser.username
@@ -208,5 +224,48 @@ app.controller("mealsAddController", function ($scope, $rootScope, $http, $state
             }
         );
     };
+});
 
+app.controller("ordersController", function ($scope, $rootScope, $http, $stateParams) {
+    $scope.username=$rootScope.globals.currentUser.username;
+    $http.get("/myOrders", {params: {username: $scope.username, restaurant_id: $stateParams.restaurant_id}}).then(
+        function (response) {
+            $scope.orders = response.data;
+            console.log($scope.orders)
+        });
+});
+
+app.controller("userSettingsController", function ($scope, $rootScope, $http, $state) {
+    $scope.current_user = $rootScope.globals.currentUser.username
+    $http.get("/userData", {params: {username: $scope.current_user}}).then(
+        function (response) {
+            $scope.user = response.data;
+            console.log($scope.user)
+        });
+
+
+    $scope.editUser = function () {
+        var in_data = {'modified_user': $scope.modified_user, 'username': $rootScope.globals.currentUser.username};
+        console.log($scope.modified_user)
+        $http.post("/editUser", in_data).then(
+            function (response) {
+                $scope.statusCode = response.status;
+            },
+            function (response) {
+                $scope.statusCode = response.status;
+            },
+            function (response) {
+                $scope.statusCode = response.status;
+            }
+        );
+    };
+});
+
+app.controller("userProfileController", function ($scope, $rootScope, $http, $state) {
+    $scope.current_user = $rootScope.globals.currentUser.username
+    $http.get("/userData", {params: {username: $scope.current_user}}).then(
+        function (response) {
+            $scope.user = response.data;
+            console.log($scope.user)
+        });
 });

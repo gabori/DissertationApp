@@ -1,0 +1,22 @@
+<div class="col-xs-10">
+    <h2>Rendelések</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th class="col-md-3">Rendelés időpontja</th>
+            <th class="col-md-3">Rendelő felhasználóneve</th>
+            <th class="col-md-3">Megrendelt termék(ek)</th>
+            <th class="col-md-2">Végösszeg</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="order in orders">
+            <td style="vertical-align: middle">{{ order.order_date }}</td>
+            <td style="vertical-align: middle">{{ order.user_id }}</td>
+            <td style="vertical-align: middle"><span ng-repeat="i in order.order_meals">{{ i.meal_name }} <br></span></td>
+            <td style="vertical-align: middle">{{ order.order_price }} Ft</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+

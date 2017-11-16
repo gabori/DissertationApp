@@ -20,6 +20,12 @@ class User(db.Model):
     phone_number = Column(String)
     email = Column(String)
 
+    orders = relationship(
+        'Order',
+        primaryjoin='Order.user_id==User.user_id',
+        foreign_keys='(User.user_id)',
+        uselist=True, viewonly=True)
+
     restaurants = relationship(
         'Restaurant',
         primaryjoin='Restaurant.user_id==User.user_id',
@@ -66,6 +72,13 @@ class Restaurant(db.Model):
     user_id = Column(Integer, ForeignKey('users.user_id'))
     # user = relationship("User")
     # payment_id = Column(Integer, ForeignKey('payments.payment_id'))
+
+    orders = relationship(
+        'Order',
+        primaryjoin='Restaurant.restaurant_id==Order.restaurant_id',
+        foreign_keys='(Restaurant.restaurant_id)',
+        uselist=True, viewonly=True
+    )
 
     user = relationship(
         'User',
@@ -165,6 +178,7 @@ class Address(db.Model):
     address_number = Column(String)
     restaurant_id = Column(Integer, ForeignKey('restaurants.restaurant_id'))
     user_id = Column(Integer, ForeignKey('users.user_id'))
+
     user = relationship(
         'User',
         primaryjoin='Address.user_id==User.user_id',
@@ -201,7 +215,21 @@ class Order(db.Model):
     oder_date = Column(Date)
     order_price = Column(Integer)
     user_id = Column(Integer, ForeignKey('users.user_id'))
+    restaurant_id = Column(Integer, ForeignKey('restaurants.restaurant_id'))
     # order_meals_id = Column(Integer, ForeignKey('order_meals.order_meals_id'))
+
+    restaurant = relationship(
+        'Restaurant',
+        primaryjoin='Restaurant.restaurant_id==Order.restaurant_id',
+        foreign_keys='(Order.restaurant_id)',
+        uselist=False, viewonly=True)
+
+    user = relationship(
+        'User',
+        primaryjoin='User.user_id==Order.user_id',
+        foreign_keys='(Order.user_id)',
+        uselist=False, viewonly=True)
+
     order_meals = relationship(
         'Order_meals',
         primaryjoin='Order.order_id==Order_meals.order_id',
