@@ -35,9 +35,7 @@ def registration():
 @app.route('/checkout', methods=['POST'])
 def checkout():
     newOrder = request.json
-
     order_price = 0
-    print("king")
     for i in newOrder['cart']:
         order_price += i['meal_price']
         meal_id = i['meal_id']
@@ -173,13 +171,13 @@ def get_payments():
     payments = []
     for i in payments_result:
         if (i.cash == True):
-            payments.append({'cash': Payment.CASH.value})
+            payments.append({'payment': Payment.CASH.value})
         if (i.creditcard == True):
-            payments.append({'creditcard': Payment.CREDITCARD.value})
+            payments.append({'payment': Payment.CREDITCARD.value})
         if (i.szep_card == True):
-            payments.append({'szep_card': Payment.SZEPCARD.value})
+            payments.append({'payment': Payment.SZEPCARD.value})
         if (i.erzsebet_voucher == True):
-            payments.append({'erzsebet_voucher': Payment.ERZSEBETVOUCHER.value})
+            payments.append({'payment': Payment.ERZSEBETVOUCHER.value})
     response = Response(response=json.dumps(payments), status=200, mimetype='application/json')
     print(payments)
     return response

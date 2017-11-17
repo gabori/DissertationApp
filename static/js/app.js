@@ -164,6 +164,12 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
 });
 
 app.controller("mealsController", function ($scope, $rootScope, $http, $state, $stateParams) {
+    $scope.pay= undefined;
+    $http.get("/payments").then(
+        function (response) {
+            $scope.payments = response.data;
+        });
+
     $http.get("/meals", {params: {restaurant_id: $stateParams.restaurant_id}}).then(
         function (response) {
             $scope.meals = response.data;
@@ -177,9 +183,8 @@ app.controller("mealsController", function ($scope, $rootScope, $http, $state, $
         $scope.amount = $scope.amount + meal.meal_price;
         console.log($scope.cart);
     };
-
     $scope.checkout = function () {
-        var in_data = {'cart': $scope.cart, 'username': $rootScope.globals.currentUser.username};
+        var in_data = {'cart': $scope.cart, 'username': $rootScope.globals.currentUser.username, 'payment': $scope.pay};
         $http.post("/checkout", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
@@ -227,7 +232,7 @@ app.controller("mealsAddController", function ($scope, $rootScope, $http, $state
 });
 
 app.controller("ordersController", function ($scope, $rootScope, $http, $stateParams) {
-    $scope.username=$rootScope.globals.currentUser.username;
+    $scope.username = $rootScope.globals.currentUser.username;
     $http.get("/myOrders", {params: {username: $scope.username, restaurant_id: $stateParams.restaurant_id}}).then(
         function (response) {
             $scope.orders = response.data;
