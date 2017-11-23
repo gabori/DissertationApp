@@ -37,12 +37,12 @@
                 </div>
             </td>
             <td style="vertical-align: middle">{{ restaurant.min_order }} Ft</td>
-            <td style="vertical-align: middle"><a href="#/setting-meals/{{ restaurant.restaurant_id }}">
-                <button class="btn btn-info btn-block">Étlap szerkesztése</button>
-            </a><a href="#">
-                <button class="btn btn-info btn-block">Étterem szerkesztése</button>
-            </a><a href="#/my-orders/{{ restaurant.restaurant_id }}">
-                <button class="btn btn-info btn-block">Rendelések</button>
+            <td style="vertical-align: middle"><a class="btn btn-info btn-block" href="#/setting-meals/{{ restaurant.restaurant_id }}">
+               Étlap szerkesztése
+            </a><a href="#" class="btn btn-info btn-block">
+                Étterem szerkesztése
+            </a><a class="btn btn-info btn-block" href="#/my-orders/{{ restaurant.restaurant_id }}">
+                Rendelések
             </a>
             </td>
         </tr>

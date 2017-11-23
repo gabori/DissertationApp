@@ -7,6 +7,7 @@
             <th class="col-md-3">Rendelő felhasználóneve</th>
             <th class="col-md-3">Megrendelt termék(ek)</th>
             <th class="col-md-2">Végösszeg</th>
+            <th class="col-md-2">Fizetési mód</th>
         </tr>
         </thead>
         <tbody>
@@ -15,6 +16,7 @@
             <td style="vertical-align: middle">{{ order.user_id }}</td>
             <td style="vertical-align: middle"><span ng-repeat="i in order.order_meals">{{ i.meal_name }} <br></span></td>
             <td style="vertical-align: middle">{{ order.order_price }} Ft</td>
+            <td style="vertical-align: middle">{{ order.payment_type }}</td>
         </tr>
         </tbody>
     </table>

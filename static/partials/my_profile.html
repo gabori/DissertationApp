@@ -7,30 +7,39 @@
         </thead>
         <tbody>
         <tr>
-            <td><strong>Teljes név</strong></td>
+            <td class="bg-primary"><strong>Teljes név</strong></td>
             <td style="vertical-align: middle">{{ user.last_name }} {{ user.first_name }}</td>
         </tr>
         <tr>
-            <td><strong>Felhasználónév</strong></td>
+            <td class="bg-primary"><strong>Felhasználónév</strong></td>
             <td style="vertical-align: middle">{{ user.user_name }}</td>
         </tr>
         <tr>
-            <td><strong>Email cím</strong></td>
+            <td class="bg-primary"><strong>Email cím</strong></td>
             <td style="vertical-align: middle">{{ user.email }}</td>
         </tr>
         <tr>
-            <td><strong>Telefonszám</strong></td>
+            <td class="bg-primary"><strong>Telefonszám</strong></td>
             <td style="vertical-align: middle">{{ user.phone_number }}</td>
         </tr>
         <tr>
-            <td><strong>Cím(ek)</strong></td>
-            <td style="vertical-align: middle"><span  ng-repeat="address in user.addresses">{{ address.address_type }}: {{ address.address_city }}
-                {{ address.address_street }} út {{ address.address_number}}.<br></span></td>
+            <td class="bg-primary"><strong>Jutalompontok</strong></td>
+            <td style="vertical-align: middle">{{ user.point }}</td>
         </tr>
-        <td></td>
-        <td><a href="#/edit-profile/{{ user.user_id }}">
-                <button class="btn btn-info btn-block">Jelszó módosítása</button>
-            </a></td>
+        <tr>
+            <td class="bg-primary"><strong>Cím(ek)</strong></td>
+            <td style="vertical-align: middle"><span
+                    ng-repeat="address in user.addresses"><strong>{{ address.address_type }}:</strong> {{ address.address_city }},
+                {{ address.address_street }} út {{ address.address_number }}.<br></span></td>
+        </tr>
+        <tr>
+            <td class="bg-primary">Nem biztonságos a jelszavad?</td>
+            <td>
+                <a href="#/edit-profile/{{ user.user_id }}">
+                    <button class="btn btn-info">Jelszó módosítása</button>
+                </a>
+            </td>
+        </tr>
         </tbody>
     </table>
 </div>

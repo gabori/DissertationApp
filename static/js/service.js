@@ -16,8 +16,9 @@ angular.module('Authentication')
                     $http.post('/login', {username: username, password: password})
                         .then(function (response) {
                             if (response.status == 200) {
-                                console.log(response.data)
-
+                                callback(response);
+                            }
+                            if(response.status == 202){
                                 callback(response);
                             }
                         });

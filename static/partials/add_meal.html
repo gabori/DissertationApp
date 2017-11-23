@@ -1,41 +1,49 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-6">
-            <h1>Étel hozzáadása</h1>
+            <h2>Étel hozzáadása</h2>
             <form ng-submit="addMeal()">
-                <div class="form-group">
-                    <div class="media-left media-middle"><label for="mealNameField" class="col-md-2 col-form-label">Étel neve</label></div>
-                    <div class="media-body">
-                        <input type="text" class="form-control" id="mealNameField" placeholder="Étel neve" ng-model="meal.meal_name" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="media-left media-middle"><label for="mealDescriptionField" class="col-md-2 col-form-label">Étel leírása</label></div>
-                    <div class="media-body">
-                        <input type="text" class="form-control" id="mealDescriptionField" placeholder="Leírás" ng-model="meal.meal_description" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="media-left media-middle"><label for="mealPriceField" class="col-md-2 col-form-label">Ár</label></div>
-                    <div class="media-body">
-                        <input type="text" class="form-control" id="mealPriceField" placeholder="Ár" ng-model="meal.meal_price" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="media-left media-middle"><label for="userRoleField" class="col-md-2 col-form-label"></label></div>
-                    <div class="media-body">
-                        <select class="form-control" ng-model="meal.username" required>
-                            <option selected>{{ globals.currentUser.username }}</option>
-                        </select>
-                    </div>
-                </div>
+                <table class="table table-borderless">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="col-md-2" style="vertical-align: middle">Étel neve</td>
+                        <td><input type="text" class="form-control" id="mealNameField" placeholder="Étel neve"
+                                   ng-model="meal.meal_name" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Étel leírása</td>
+                        <td>
+                            <input type="text" class="form-control" id="mealDescriptionField" placeholder="Leírás"
+                                   ng-model="meal.meal_description" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Étel ára</td>
+                        <td>
+                            <input type="text" class="form-control" id="mealPriceField" placeholder="Ár"
+                                   ng-model="meal.meal_price" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Étel típusa</td>
+                        <td>
+                            <input type="text" class="form-control" id="mealTypeField" placeholder="Típus"
+                                   ng-model="meal.meal_type" required>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
                 <div ng-if="statusCode == 200">
                     <div class="alert alert-success">
                         <p><strong> Sikeresen hozzáadta az ételt!</strong></p>
                     </div>
                 </div>
                 <div class="form-group">
-                <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-ok"></i> Felvitel</button>
+                    <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-ok"></i> Felvitel
+                    </button>
                 </div>
             </form>
         </div>

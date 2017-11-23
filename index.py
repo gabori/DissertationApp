@@ -19,14 +19,23 @@ def registration():
     newUser = request.json
     user = User.query.filter(User.user_name == newUser['user_name']).first()
     print(newUser['user_name'])
+    address = Address(address_type="Lakcím", address_city=newUser['city'], address_street=newUser['street'],
+                      address_number=newUser['number'])
     if user is not None:
         response = Response(status=409)
         return response
     else:
         new_user = User(first_name=newUser['first_name'], last_name=newUser['last_name'],
                         user_name=newUser['user_name'],
-                        password=newUser['password'], phone_number=newUser['phone_number'], email=newUser['email'])
+                        password=newUser['password'], phone_number=newUser['phone_number'], email=newUser['email'],
+                        user_role="user", point=0)
+
         db.session.add(new_user)
+        db.session.commit()
+        user = User.query.filter(User.user_name == newUser['user_name']).first()
+        address = Address(address_type="Lakcím", address_city=newUser['city'], address_street=newUser['street'],
+                          address_number=newUser['number'], user_id=user.user_id)
+        db.session.add(address)
         db.session.commit()
         response = Response(status=200)
         return response
@@ -39,10 +48,14 @@ def checkout():
     for i in newOrder['cart']:
         order_price += i['meal_price']
         meal_id = i['meal_id']
+    payment = newOrder['payment']
+    print(payment)
+    point = (order_price // 1000) * 3
     meal = Meal.query.filter(Meal.meal_id == meal_id).first()
     user = User.query.filter(User.user_name == newOrder['username']).first()
-    new_Order = Order(oder_date=datetime.datetime.now(), user_id=user.user_id, order_price=order_price,
-                      restaurant_id=meal.restaurant_id)
+    new_Order = Order(order_date=datetime.datetime.now(), user_id=user.user_id, order_price=order_price,
+                      restaurant_id=meal.restaurant_id, payment_type=payment['payment'])
+    user.point = user.point + point
     db.session.add(new_Order)
     db.session.commit()
 
@@ -80,7 +93,8 @@ def login():
             user = 1
             break;
     if user != 1:
-        response = Response(status=401)
+        response = Response(status=202, mimetype='application/json')
+        print(response)
         return response
     else:
         response = Response(response=json.dumps(login_user), status=200, mimetype='application/json')
@@ -147,7 +161,7 @@ def get_orders():
         for j in i.order_meals:
             for z in j.meals:
                 meals.append({'meal_name': z.meal_name})
-        orders.append({'order_id': i.order_id, 'order_meals': meals, 'oder_price': i.order_price})
+        orders.append({'order_id': i.order_id, 'order_meals': meals, 'order_price': i.order_price})
     response = Response(response=json.dumps(orders), status=200, mimetype='application/json')
     # print(orders)
     return response
@@ -162,6 +176,17 @@ def get_cities():
         # cities.append(i.address_city)
     response = Response(response=json.dumps(cities), status=200, mimetype='application/json')
     # print(cities)
+    return response
+
+
+@app.route('/types', methods=['GET'])
+def get_types():
+    restaurant_id = request.args.get('restaurant_id')
+    types_result = Meal.query.with_entities(Meal.meal_type).filter(Meal.restaurant_id == restaurant_id).distinct()
+    types = []
+    for i in types_result:
+        types.append({'meal_type': i.meal_type})
+    response = Response(response=json.dumps(types), status=200, mimetype='application/json')
     return response
 
 
@@ -186,19 +211,26 @@ def get_payments():
 @app.route('/addRestaurant', methods=['POST'])
 def addRestaurant():
     newRestaurant = request.json
-    restaurant = Restaurant.query.filter(Restaurant.restaurant_name == newRestaurant['restaurant_name']).first()
+    restaurant = Restaurant.query.filter(
+        Restaurant.restaurant_name == newRestaurant["restaurant"]['restaurant_name']).first()
+    user = User.query.filter(User.user_name == newRestaurant["username"]).first()
     print(newRestaurant)
     if restaurant is not None:
         response = Response(status=409)
         return response
     else:
-        new_restaurant = Restaurant(restaurant_name=newRestaurant['restaurant_name'],
-                                    restaurant_description=newRestaurant['restaurant_description'])
+        new_restaurant = Restaurant(restaurant_name=newRestaurant["restaurant"]['restaurant_name'],
+                                    restaurant_description=newRestaurant["restaurant"]['restaurant_description'],
+                                    delivery_price=newRestaurant["restaurant"]['delivery_price'],
+                                    delivery_min_time=newRestaurant["restaurant"]['delivery_min_time'],
+                                    delivery_max_time=newRestaurant["restaurant"]['delivery_max_time'],
+                                    min_order=newRestaurant["restaurant"]['min_order'], user_id=user.user_id
+                                    )
         db.session.add(new_restaurant)
         db.session.commit()
-        new_address = Address(address_city=newRestaurant['address']['address_city'],
-                              address_street=newRestaurant['address']['address_street'],
-                              address_number=newRestaurant['address']['address_number'],
+        new_address = Address(address_city=newRestaurant["restaurant"]['address']['address_city'],
+                              address_street=newRestaurant["restaurant"]['address']['address_street'],
+                              address_number=newRestaurant["restaurant"]['address']['address_number'],
                               restaurant_id=new_restaurant.restaurant_id)
         db.session.add(new_address)
         db.session.commit()
@@ -209,15 +241,14 @@ def addRestaurant():
 @app.route('/addMeal', methods=['POST'])
 def addMeal():
     newMeal = request.json
-
-    print(newMeal)
     user = User.query.filter(User.user_name == newMeal['username']).first()
-
     restaurant = Restaurant.query.filter(user.user_id == Restaurant.user_id).first()
-    new_meal = Meal(meal_name=newMeal['meal_name'],
-                    meal_description=newMeal['meal_description'],
-                    meal_price=newMeal['meal_price'],
+    new_meal = Meal(meal_name=newMeal['meal']["meal_name"],
+                    meal_description=newMeal['meal']['meal_description'],
+                    meal_price=newMeal['meal']['meal_price'],
+                    meal_type=newMeal['meal']['meal_type'],
                     restaurant_id=restaurant.restaurant_id)
+
     db.session.add(new_meal)
     db.session.commit()
     response = Response(status=200)
@@ -251,8 +282,8 @@ def get_my_orders():
                 for k in j.meals:
                     meals.append({'meal_name': k.meal_name})
         customer = User.query.filter(User.user_id == i.user_id).first()
-        orders.append({'order_id': i.order_id, 'order_date': str(i.oder_date), 'order_meals': meals,
-                       'order_price': i.order_price, 'restaurant_id': i.restaurant_id,
+        orders.append({'order_id': i.order_id, 'order_date': str(i.order_date), 'order_meals': meals,
+                       'order_price': i.order_price, 'payment_type': i.payment_type, 'restaurant_id': i.restaurant_id,
                        'restaurant': rest, 'user_id': customer.user_name})
 
     response = Response(response=json.dumps(orders), status=200, mimetype='application/json')
@@ -271,7 +302,7 @@ def userData():
                         'address_city': i.address_city, 'address_street': i.address_street,
                         'address_number': i.address_number})
     response_user = {'first_name': user.first_name, 'last_name': user.last_name, 'user_name': user.user_name,
-                     'password': user.password, 'email': user.email,
+                     'password': user.password, 'email': user.email, 'point': user.point,
                      'phone_number': user.phone_number, 'addresses': address}
     print(response_user)
     response = Response(response=json.dumps(response_user), status=200, mimetype='application/json')

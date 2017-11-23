@@ -7,15 +7,20 @@ var app = angular.module("restaurants", ["Authentication", "ngCookies", "ui.rout
     function ($rootScope, $location, $cookieStore, $http) {
         // keep user logged in after page refresh
         $rootScope.globals = $cookieStore.get('globals') || {};
+        $rootScope.cart = $cookieStore.get('cart');
+        $rootScope.amount = $cookieStore.get('amount') || 0;
         if ($rootScope.globals.currentUser) {
             $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.username; // jshint ignore:line
         }
 
         $rootScope.$on('$locationChangeStart', function (event, next, current) {
             // redirect to login page if not logged in
-            if ($location.path() !== '' && !$rootScope.globals.currentUser) {
+            if ($location.path() !== '' && $location.path() !== '/registration' && !$rootScope.globals.currentUser) {
                 $location.path('');
             }
+            /*if ($location.path() === "/restaurant"){
+
+             }*/
         });
     }]);
 ;
@@ -101,7 +106,9 @@ app.controller("loginController", ['$scope', '$rootScope', '$location', 'Authent
                     AuthenticationService.SetCredentials($scope.username, $scope.password, $scope.user_role);
                     $location.path('/startpage');
                 } else {
-                    $scope.error = response.message;
+                    console.log("baj van")
+                    $scope.error = "A felhasználónév vagy a jelszó helytelen!"
+                    console.log($scope.error)
                     $scope.dataLoading = false;
                 }
             });
@@ -123,13 +130,18 @@ app.controller("userController", function ($scope, $rootScope, $http, $state) {
 });
 
 
-app.controller("restaurantController", function ($scope, $rootScope, $http, $state, $stateParams) {
+app.controller("restaurantController", function ($scope, $rootScope, $http, $state, $stateParams, $cookieStore) {
     $http.get("/restaurants").then(
         function (response) {
+
             $scope.restaurants = response.data;
             console.log($scope.restaurants)
         });
-
+    $cookieStore.remove('cart');
+    $cookieStore.remove('amount');
+    $rootScope.cart = []
+    $rootScope.amount = 0
+    $state.reload;
     $http.get("/myRestaurant", {params: {username: $stateParams.username}}).then(
         function (response) {
             $scope.my_restaurants = response.data;
@@ -153,7 +165,8 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
         });
 
     $scope.addRestaurant = function () {
-        $http.post("/addRestaurant", $scope.restaurant).then(
+        var in_data = {'restaurant': $scope.restaurant, 'username': $rootScope.globals.currentUser.username};
+        $http.post("/addRestaurant", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
             },
@@ -163,8 +176,8 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
     };
 });
 
-app.controller("mealsController", function ($scope, $rootScope, $http, $state, $stateParams) {
-    $scope.pay= undefined;
+app.controller("mealsController", function ($scope, $rootScope, $http, $state, $stateParams, $cookieStore) {
+    $scope.pay = undefined;
     $http.get("/payments").then(
         function (response) {
             $scope.payments = response.data;
@@ -174,17 +187,41 @@ app.controller("mealsController", function ($scope, $rootScope, $http, $state, $
         function (response) {
             $scope.meals = response.data;
         });
-    if ($scope.cart === undefined) {
-        $scope.cart = [];
+    $scope.restaurant_id = $stateParams.restaurant_id
+    console.log($scope.restaurant_id)
+
+    $http.get("/types", {params: {restaurant_id: $scope.restaurant_id}}).then(
+        function (response) {
+            $scope.types = response.data;
+        });
+
+    if ($rootScope.cart === undefined) {
+        $rootScope.cart = [];
     }
-    $scope.amount = 0;
+    //$rootScope.amount = 0;
     $scope.addToCart = function (meal) {
-        $scope.cart.push(meal);
-        $scope.amount = $scope.amount + meal.meal_price;
-        console.log($scope.cart);
+        $rootScope.cart.push(meal);
+        $rootScope.amount = $rootScope.amount + meal.meal_price;
+        $cookieStore.put('cart', $rootScope.cart);
+        $cookieStore.put('amount', $rootScope.amount);
+
     };
+
+    $scope.removeFromCart = function (meal) {
+        $rootScope.cart.pop(meal);
+        $rootScope.amount = $rootScope.amount - meal.meal_price;
+        $cookieStore.put('cart', $rootScope.cart);
+        $cookieStore.put('amount', $rootScope.amount);
+    };
+
     $scope.checkout = function () {
-        var in_data = {'cart': $scope.cart, 'username': $rootScope.globals.currentUser.username, 'payment': $scope.pay};
+        var in_data = {
+            'cart': $rootScope.cart,
+            'username': $rootScope.globals.currentUser.username,
+            'payment': $scope.pay
+        };
+        $rootScope.cart = [];
+        $rootScope.amount = 0;
         $http.post("/checkout", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
@@ -217,10 +254,12 @@ app.controller("mealsSettingController", function ($scope, $rootScope, $http, $s
 });
 
 app.controller("mealsAddController", function ($scope, $rootScope, $http, $state) {
-    console.log($scope.meal)
-    $scope.user = $rootScope.globals.currentUser.username
+
     $scope.addMeal = function () {
-        $http.post("/addMeal", $scope.meal, $scope.user).then(
+        var in_data = {'meal': $scope.meal, 'username': $rootScope.globals.currentUser.username};
+        console.log(in_data)
+        console.log($scope.meal)
+        $http.post("/addMeal", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
             },

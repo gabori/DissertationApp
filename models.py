@@ -19,6 +19,7 @@ class User(db.Model):
     password = Column(String)
     phone_number = Column(String)
     email = Column(String)
+    point = Column(Integer)
 
     orders = relationship(
         'Order',
@@ -38,9 +39,6 @@ class User(db.Model):
         foreign_keys='(User.user_id)',
         uselist=True, viewonly=True)
 
-    # restaurantID = Column(Integer, ForeignKey('restaurants.restaurant_id'))
-
-    # addresses = relationship("Address", back_populates="user")
 
     def to_dict(self):
         fields = {
@@ -51,7 +49,8 @@ class User(db.Model):
             'user_role' : self.user_role,
             'password': self.password,
             'phone_number': self.phone_number,
-            'email': self.email
+            'email': self.email,
+            'point': self.point
         }
         return fields
 
@@ -131,7 +130,7 @@ class Meal(db.Model):
     meal_description = Column(String)
     image_source = Column(String)
     meal_price = Column(Float)
-    # order_meals_id = Column(Integer, ForeignKey('order_meals.order_meals_id'))
+    meal_type = Column(String)
     restaurant_id = Column(Integer, ForeignKey('restaurants.restaurant_id'))
 
     restaurant = relationship(
@@ -139,12 +138,6 @@ class Meal(db.Model):
         primaryjoin='Meal.restaurant_id==Restaurant.restaurant_id',
         foreign_keys='(Meal.restaurant_id)',
         uselist=False, viewonly=True)
-
-    """order_meals = relationship(
-        'Order_meals',
-        primaryjoin='Meal.meals_id==Order_meals.order_meals_id',
-        foreign_keys='(Meal.order_meals_id)',
-        uselist=False, viewonly=True)"""
 
     order_meals = relationship(
         'Order_meals',
@@ -161,6 +154,7 @@ class Meal(db.Model):
             'meal_description': self.meal_description,
             'image_source': self.image_source,
             'meal_price': self.meal_price,
+            'meal_type': self.meal_type
 
         }
         return fields
@@ -212,11 +206,11 @@ class Address(db.Model):
 class Order(db.Model):
     __tablename__ = 'orders'
     order_id = Column(Integer, primary_key=True)
-    oder_date = Column(Date)
+    order_date = Column(Date)
     order_price = Column(Integer)
     user_id = Column(Integer, ForeignKey('users.user_id'))
     restaurant_id = Column(Integer, ForeignKey('restaurants.restaurant_id'))
-    # order_meals_id = Column(Integer, ForeignKey('order_meals.order_meals_id'))
+    payment_type = Column(String)
 
     restaurant = relationship(
         'Restaurant',
@@ -241,6 +235,7 @@ class Order(db.Model):
             'order_id': self.order_id,
             'order_date': str(self.order_date),
             'order_price': self.order_price,
+            'payment_type': self.payment_type
         }
         return fields
 
