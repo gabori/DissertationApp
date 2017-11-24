@@ -86,6 +86,18 @@ app.config(function ($stateProvider) {
             templateUrl: "/static/partials/edit_password.html",
             controller: "userSettingsController"
         })
+
+        .state("/edit-restaurant", {
+            url: "/edit-restaurant/:restaurant_id",
+            templateUrl: "/static/partials/edit_restaurant.html",
+            controller: "editRestaurantController"
+        })
+
+        .state("/edit-meal", {
+            url: "/edit-meal/:meal_id",
+            templateUrl: "/static/partials/edit_meal.html",
+            controller: "editMealController"
+        })
 });
 
 app.controller("mainController", function ($scope, $rootScope, $http, $stateParams) {
@@ -239,6 +251,12 @@ app.controller("mealsSettingController", function ($scope, $rootScope, $http, $s
         function (response) {
             $scope.meals = response.data;
         });
+    $scope.restaurant_id = $stateParams.restaurant_id
+    $http.get("/types", {params: {restaurant_id: $scope.restaurant_id}}).then(
+        function (response) {
+            $scope.types = response.data;
+        });
+
     $scope.removeMeal = function (meal) {
         $scope.meal = meal
         $http.post("/removeMeal", $scope.meal).then(
@@ -312,4 +330,50 @@ app.controller("userProfileController", function ($scope, $rootScope, $http, $st
             $scope.user = response.data;
             console.log($scope.user)
         });
+});
+
+app.controller("editRestaurantController", function ($scope, $rootScope, $http, $stateParams) {
+    $rootScope.restaurant = undefined;
+    $http.get("/restaurantData", {params: {restaurant_id: $stateParams.restaurant_id}}).then(
+        function (response) {
+            $rootScope.restaurant = response.data;
+            console.log($scope.restaurant)
+        });
+
+
+    $scope.editRestaurant = function () {
+        var in_data = {'modified_restaurant': $scope.modified_restaurant, 'restaurant_id': $stateParams.restaurant_id};
+        $http.post("/editRestaurant", in_data).then(
+            function (response) {
+                $scope.statusCode = response.status;
+            },
+            function (response) {
+                $scope.statusCode = response.status;
+            }
+        );
+    };
+});
+
+app.controller("editMealController", function ($scope, $rootScope, $http, $stateParams) {
+    $http.get("/mealData", {params: {meal_id: $stateParams.meal_id}}).then(
+        function (response) {
+            $rootScope.meal = response.data;
+        });
+
+
+    $scope.editMeal = function () {
+        var in_data = {
+            'modified_meal': $scope.modified_meal,
+            'restaurant_id': $scope.meal.restaurant_id,
+            'meal_id': $stateParams.meal_id
+        };
+        $http.post("/editMeal", in_data).then(
+            function (response) {
+                $scope.statusCode = response.status;
+            },
+            function (response) {
+                $scope.statusCode = response.status;
+            }
+        );
+    };
 });

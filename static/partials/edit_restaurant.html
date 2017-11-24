@@ -1,0 +1,108 @@
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">
+            <h2>Étterem szerkesztése</h2>
+            <form ng-submit="editRestaurant()">
+                <table class="table table-borderless">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="col-md-3" style="vertical-align: middle">Étterem neve</td>
+                        <td>
+                            <input type="text" class="form-control" id="restaurantNameField" placeholder="Étterem neve"
+                                   ng-init="modified_restaurant.restaurant_name = restaurant.restaurant_name"
+                                   ng-model="modified_restaurant.restaurant_name">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle"> Étterem leírása
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" id="restaurantDescriptionField" placeholder="Leírás"
+                                   ng-model="modified_restaurant.restaurant_description" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Város</td>
+                        <td>
+                            <input type="text" class="form-control" id="addressCityField" placeholder="Város"
+                                   ng-model="modified_restaurant.address_city" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Utca</td>
+                        <td>
+                            <input type="text" class="form-control" id="addressStreetField" placeholder="Utca"
+                                   ng-model="modified_restaurant.address_street" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Házszám</td>
+                        <td>
+                            <input type="text" class="form-control" id="addressNumberField" placeholder="Házszám"
+                                   ng-model="modified_restaurant.address_number" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Kiszállítási költség</td>
+                        <td>
+                            <input type="text" class="form-control" id="deliveryPriceField"
+                                   placeholder="Kiszállítási költség"
+                                   ng-model="modified_restaurant.delivery_price" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Minimális kiszállítási idő</td>
+                        <td>
+                            <input type="text" class="form-control" id="deliveryMinTimeField"
+                                   placeholder="Minimális kiszállítási idő"
+                                   ng-model="modified_restaurant.delivery_min_time" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Maximális kiszállítási idő</td>
+                        <td>
+                            <input type="text" class="form-control" id="deliveryMaxTimeField"
+                                   placeholder="Maximális kiszállítási idő"
+                                   ng-model="modified_restaurant.delivery_max_time" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Minimális rendelés összege</td>
+                        <td>
+                            <input type="number" class="form-control" id="minOrderField"
+                                   placeholder="Minimális rendelés"
+                                   ng-model="modified_restaurant.min_order" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-3">
+                            Jelszó
+                        </td>
+                        <td><input type="password" class="form-control" id="currentPasswordField"
+                                   placeholder="Jelenlegi jelszó"
+                                   ng-model="modified_restaurant.current_password" required>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div ng-if="statusCode == 401">
+                    <div class="alert alert-warning">
+                        <p><strong>Warning!</strong> A megadott jelszó hibás!.</p>
+                    </div>
+                </div>
+                <div ng-if="statusCode == 200">
+                    <div class="alert alert-success">
+                        <p><strong> Sikeres adat módosítás!</strong></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-ok"></i> Mentés</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

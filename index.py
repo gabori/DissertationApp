@@ -328,5 +328,86 @@ def editUser():
         return response
 
 
+@app.route('/restaurantData', methods=['GET'])
+def get_my_restaurant_data():
+    restaurant_id = request.args.get('restaurant_id')
+    restaurant = Restaurant.query.filter(Restaurant.restaurant_id == restaurant_id).first()
+    address = Address.query.filter(Address.restaurant_id == restaurant_id).first()
+    # serializable_address = {'address_city': address.address_city, 'address_street': address.address_street,
+    #                         'address_number': address.address_number}
+    new_restaurant = {'restaurant_id': restaurant.restaurant_id,
+                      'restaurant_name': restaurant.restaurant_name,
+                      'restaurant_description': restaurant.restaurant_description,
+                      'restaurant_city': restaurant.address.address_city,
+                      'restaurant_street': restaurant.address.address_street,
+                      'restaurant_number': restaurant.address.address_number,
+                      'banner': restaurant.banner,
+                      'delivery_price': restaurant.delivery_price,
+                      'delivery_min_time': restaurant.delivery_min_time,
+                      'delivery_max_time': restaurant.delivery_max_time,
+                      'min_order': restaurant.min_order}
+    response = Response(response=json.dumps(new_restaurant), status=200, mimetype='application/json')
+    return response
+
+
+@app.route('/editRestaurant', methods=['POST'])
+def editRestaurant():
+    params = request.json
+    restaurant = Restaurant.query.filter(Restaurant.restaurant_id == params['restaurant_id']).first()
+    user = User.query.filter(User.user_id == restaurant.user_id).first()
+    modified_restaurant = params['modified_restaurant']
+    if user.password == modified_restaurant['current_password']:
+        restaurant.restaurant_name = modified_restaurant['restaurant_name']
+        restaurant.restaurant_description = modified_restaurant['restaurant_description']
+        restaurant.delivery_min_time = modified_restaurant['delivery_min_time']
+        restaurant.delivery_max_time = modified_restaurant['delivery_max_time']
+        restaurant.min_order = modified_restaurant['min_order']
+        restaurant.address.address_city = modified_restaurant['address_city']
+        restaurant.address.address_street = modified_restaurant['address_street']
+        restaurant.address.address_number = modified_restaurant['address_number']
+        db.session.commit()
+        response = Response(status=200)
+        return response
+    else:
+        response = Response(status=401)
+        return response
+
+
+@app.route('/mealData', methods=['GET'])
+def get_my_meal_data():
+    meal_id = request.args.get('meal_id')
+    meal = Meal.query.filter(Meal.meal_id == meal_id).first()
+    response_meal = {'meal_id': meal.meal_id,
+                     'meal_name': meal.meal_name,
+                     'meal_description': meal.meal_description,
+                     'meal_type': meal.meal_type,
+                     'meal_price': meal.meal_price,
+                     'restaurant_id': meal.restaurant_id}
+    response = Response(response=json.dumps(response_meal), status=200, mimetype='application/json')
+    return response
+
+
+@app.route('/editMeal', methods=['POST'])
+def editMeal():
+    params = request.json
+    meal = Meal.query.filter(Meal.meal_id == params['meal_id']).first()
+    restaurant = Restaurant.query.filter(Restaurant.restaurant_id == params['restaurant_id']).first()
+    user = User.query.filter(User.user_id == restaurant.user_id).first()
+    modified_meal = params['modified_meal']
+    if user.password == modified_meal['current_password']:
+        meal.meal_name = modified_meal['meal_name']
+        meal.meal_description = modified_meal['meal_description']
+        meal.meal_type = modified_meal['meal_type']
+        meal.meal_price = modified_meal['meal_price']
+        meal.restaurant_id = params['restaurant_id']
+        meal.image_source = meal.image_source
+        db.session.commit()
+        response = Response(status=200)
+        return response
+    else:
+        response = Response(status=401)
+        return response
+
+
 if __name__ == '__main__':
     app.run()

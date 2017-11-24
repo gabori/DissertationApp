@@ -1,0 +1,65 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">
+            <h2>Étel szerkesztése</h2>
+            <form ng-submit="editMeal()">
+                <table class="table table-borderless">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="col-md-2" style="vertical-align: middle">Étel neve</td>
+                        <td><input type="text" class="form-control" id="mealNameField" placeholder="Étel neve"
+                                   ng-model="modified_meal.meal_name" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Étel leírása</td>
+                        <td>
+                            <input type="text" class="form-control" id="mealDescriptionField" placeholder="Leírás"
+                                   ng-model="modified_meal.meal_description" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Étel típusa</td>
+                        <td>
+                            <input type="text" class="form-control" id="mealTypeField" placeholder="Típus"
+                                   ng-model="modified_meal.meal_type" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle">Étel ára</td>
+                        <td>
+                            <input type="number" class="form-control" id="mealPriceField" placeholder="Ár"
+                                   ng-model="modified_meal.meal_price" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-3">
+                            Jelszó
+                        </td>
+                        <td><input type="password" class="form-control" id="currentPasswordField"
+                                   placeholder="Jelenlegi jelszó"
+                                   ng-model="modified_meal.current_password" required>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div ng-if="statusCode == 401">
+                    <div class="alert alert-warning">
+                        <p><strong>Warning!</strong> A megadott jelszó hibás!.</p>
+                    </div>
+                </div>
+                <div ng-if="statusCode == 200">
+                    <div class="alert alert-success">
+                        <p><strong> Sikeres adat módosítás!</strong></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-ok"></i> Mentés</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

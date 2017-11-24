@@ -21,12 +21,13 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="meal in meals">
+            <tr ng-repeat="meal in meals | filter: type.meal_type">
                 <td class="col-md-2"><img src="{{ meal.image_source }}" width="175px" height="77x"></td>
                 <td class="col-md-6"><h4><strong>{{ meal.meal_name }}</strong></h4> {{ meal.meal_description }}</td>
                 <td style="vertical-align: middle"><strong>{{ meal.meal_price }} Ft</strong></td>
                 <td style="vertical-align: middle">
                     <button class="btn btn-info" ng-click="removeMeal(meal)">Törlés az étlapról</button>
+                    <a href="#/edit-meal/{{ meal.meal_id }}" class="btn btn-info">Étel szerkesztése</a>
                 </td>
             </tr>
             </tbody>
