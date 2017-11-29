@@ -14,11 +14,40 @@
         <tr ng-repeat="order in orders">
             <td style="vertical-align: middle">{{ order.order_date }}</td>
             <td style="vertical-align: middle">{{ order.user_id }}</td>
-            <td style="vertical-align: middle"><span ng-repeat="i in order.order_meals">{{ i.meal_name }} <br></span></td>
+            <td style="vertical-align: middle"><span ng-repeat="i in order.order_meals">{{ i.meal_name }} <br></span>
+            </td>
             <td style="vertical-align: middle">{{ order.order_price }} Ft</td>
             <td style="vertical-align: middle">{{ order.payment_type }}</td>
         </tr>
         </tbody>
     </table>
-</div>
+    <script>
+        $(document).ready(function () {
+            var list = [];
+            console.log(window.location.hash.split('/').slice(-1)[0])
+            $.getJSON("/barchart", {
+                    restaurant_id: window.location.hash.split('/').slice(-1)[0]
+                }, function (data) {
 
+                    var chart = new CanvasJS.Chart("chartContainer", {
+                        animationEnabled: true,
+                        theme: "light2", // "light1", "light2", "dark1", "dark2"
+                        title: {
+                            text: "Fizetési módok gyakorisága"
+                        },
+                        axisY: {
+                            title: "Darab"
+                        },
+                        data: [{
+                            type: "column",
+                            showInLegend: false,
+                            dataPoints: data
+                        }]
+                    });
+                    chart.render();
+                })
+        });
+    </script>
+    <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</div>

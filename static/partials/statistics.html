@@ -1,0 +1,63 @@
+<div>
+    <button class="btn btn-info" id="payment">Fizetési módok gyakorisága</button>
+    <button class="btn btn-info" id="meal_type">Étel típusok rendelésének gyakorisága</button>
+    <script>
+        $(document).ready(function () {
+            $('#payment').click(function () {
+                var list = [];
+                console.log(window.location.hash.split('/').slice(-1)[0])
+                $.getJSON("/paymentTypeStat", {
+                    restaurant_id: window.location.hash.split('/').slice(-1)[0]
+                }, function (data) {
+
+                    var chart = new CanvasJS.Chart("chartContainer", {
+                        animationEnabled: true,
+                        theme: "light2", // "light1", "light2", "dark1", "dark2"
+                        title: {
+                            text: "Fizetési módok gyakorisága"
+                        },
+                        axisY: {
+                            title: "Darab"
+                        },
+                        data: [{
+                            type: "column",
+                            showInLegend: false,
+                            dataPoints: data
+                        }]
+                    });
+                    chart.render();
+                })
+            });
+
+            $('#meal_type').click(function () {
+                var list = [];
+                console.log(window.location.hash.split('/').slice(-1)[0])
+                $.getJSON("/mealTypeStat", {
+                    restaurant_id: window.location.hash.split('/').slice(-1)[0]
+                }, function (data) {
+
+                    var chart = new CanvasJS.Chart("chartContainer", {
+                        animationEnabled: true,
+                        theme: "light2", // "light1", "light2", "dark1", "dark2"
+                        title: {
+                            text: "Étel típusok rendelésének gyakorisága"
+                        },
+                        axisY: {
+                            title: "Darab"
+                        },
+                        data: [{
+                            type: "column",
+                            showInLegend: false,
+                            dataPoints: data
+                        }]
+                    });
+                    chart.render();
+                })
+            })
+
+        });
+    </script>
+
+    <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</div>

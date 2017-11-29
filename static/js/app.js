@@ -10,7 +10,7 @@ var app = angular.module("restaurants", ["Authentication", "ngCookies", "ui.rout
         $rootScope.cart = $cookieStore.get('cart');
         $rootScope.amount = $cookieStore.get('amount') || 0;
         if ($rootScope.globals.currentUser) {
-            $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.username; // jshint ignore:line
+            $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.token; // jshint ignore:line
         }
 
         $rootScope.$on('$locationChangeStart', function (event, next, current) {
@@ -98,9 +98,14 @@ app.config(function ($stateProvider) {
             templateUrl: "/static/partials/edit_meal.html",
             controller: "editMealController"
         })
+        .state("/statistics", {
+            url: "/statistics/:restaurant_id",
+            templateUrl: "/static/partials/statistics.html",
+            controller: "statisticsController"
+        })
 });
 
-app.controller("mainController", function ($scope, $rootScope, $http, $stateParams) {
+app.controller("mainController", function ($scope, $rootScope) {
     $rootScope.loginUser = {};
 });
 
@@ -342,7 +347,7 @@ app.controller("editRestaurantController", function ($scope, $rootScope, $http, 
 
 
     $scope.editRestaurant = function () {
-        var in_data = {'modified_restaurant': $scope.modified_restaurant, 'restaurant_id': $stateParams.restaurant_id};
+        var in_data = {'modified_restaurant': $scope.restaurant, 'restaurant_id': $stateParams.restaurant_id};
         $http.post("/editRestaurant", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
@@ -363,7 +368,7 @@ app.controller("editMealController", function ($scope, $rootScope, $http, $state
 
     $scope.editMeal = function () {
         var in_data = {
-            'modified_meal': $scope.modified_meal,
+            'modified_meal': $scope.meal,
             'restaurant_id': $scope.meal.restaurant_id,
             'meal_id': $stateParams.meal_id
         };
@@ -377,3 +382,8 @@ app.controller("editMealController", function ($scope, $rootScope, $http, $state
         );
     };
 });
+
+app.controller("statisticsController", function ($scope, $rootScope, $http, $stateParams) {
+
+});
+

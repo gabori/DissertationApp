@@ -4,6 +4,8 @@ from models import User, Restaurant, Meal, Order, Order_meals, Address, PaymentT
 import json
 import logging
 import datetime
+import jwt
+from time import gmtime, strftime
 
 user = ""
 log = logging.getLogger(__name__)
@@ -49,7 +51,7 @@ def checkout():
         order_price += i['meal_price']
         meal_id = i['meal_id']
     payment = newOrder['payment']
-    print(payment)
+    print(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     point = (order_price // 1000) * 3
     meal = Meal.query.filter(Meal.meal_id == meal_id).first()
     user = User.query.filter(User.user_name == newOrder['username']).first()
@@ -88,7 +90,15 @@ def login():
 
     for i in user_result:
         if current_user['username'] == i.user_name and current_user['password'] == i.password:
-            login_user = {'username': i.user_name, 'password': i.password, 'user_role': i.user_role}
+            payload = {
+                "uid": i.user_id,
+                "name": i.user_name,
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
+            }
+
+            token = jwt.encode(payload=payload, key="SECRET_KEY")
+            login_user = {'username': i.user_name, 'password': i.password, 'user_role': i.user_role,
+                          'token': token.decode("utf-8")}
             global user;
             user = 1
             break;
@@ -291,6 +301,65 @@ def get_my_orders():
     return response
 
 
+@app.route('/paymentTypeStat', methods=['GET'])
+def paymentTypeStat():
+    username = request.args.get('username')
+    restaurant_id = request.args.get('restaurant_id')
+    user = User.query.filter(User.user_name == username).first()
+    restaurant = Restaurant.query.filter(Restaurant.restaurant_id == restaurant_id).first()
+    payment = PaymentTable.query.filter(PaymentTable.restaurant_id == restaurant_id).first()
+    payments = []
+    for key, value in payment.to_dict().items():
+        if value == 1:
+            payments.append(key)
+    payments_dictionary = {}
+    for i in payments:
+        if i == "cash":
+            payments_dictionary[i] = Order.query.filter(Order.restaurant_id == restaurant.restaurant_id).filter(
+                Order.payment_type == "Készpénz").count()
+        if i == "creditcard":
+            payments_dictionary[i] = Order.query.filter(Order.restaurant_id == restaurant.restaurant_id).filter(
+                Order.payment_type == "Bankkártya").count()
+        if i == "szep_card":
+            payments_dictionary[i] = Order.query.filter(Order.restaurant_id == restaurant.restaurant_id).filter(
+                Order.payment_type == "SZÉP kártya").count()
+        if i == "erzsebet_voucher":
+            payments_dictionary[i] = Order.query.filter(Order.restaurant_id == restaurant.restaurant_id).filter(
+                Order.payment_type == "Erzsébet utalvány").count()
+
+    orders = []
+    for key, value in payments_dictionary.items():
+        orders.append({"y": value, "label": key})
+    print(orders)
+
+    response = Response(response=json.dumps(orders), status=200, mimetype='application/json')
+    return response
+
+
+@app.route('/mealTypeStat', methods=['GET'])
+def mealTypeStat():
+    username = request.args.get('username')
+    restaurant_id = request.args.get('restaurant_id')
+    user = User.query.filter(User.user_name == username).first()
+    restaurant = Restaurant.query.filter(Restaurant.restaurant_id == restaurant_id).first()
+    meal_types = Meal.query.filter(Meal.restaurant_id == restaurant_id).group_by(Meal.meal_type).all()
+    orders_result = Order.query.filter(Order.restaurant_id == restaurant.restaurant_id).all()
+    meals = []
+    for i in meal_types:
+        tmp = 0
+        for j in orders_result:
+            for k in j.order_meals:
+                if k.order_id == j.order_id:
+                    for l in k.meals:
+                        if i.meal_type == l.meal_type:
+                            tmp += 1
+        meals.append({"y": tmp, "label": i.meal_type})
+    print(meals)
+
+    response = Response(response=json.dumps(meals), status=200, mimetype='application/json')
+    return response
+
+
 @app.route('/userData', methods=['GET'])
 def userData():
     username = request.args.get('username')
@@ -338,9 +407,9 @@ def get_my_restaurant_data():
     new_restaurant = {'restaurant_id': restaurant.restaurant_id,
                       'restaurant_name': restaurant.restaurant_name,
                       'restaurant_description': restaurant.restaurant_description,
-                      'restaurant_city': restaurant.address.address_city,
-                      'restaurant_street': restaurant.address.address_street,
-                      'restaurant_number': restaurant.address.address_number,
+                      'address_city': restaurant.address.address_city,
+                      'address_street': restaurant.address.address_street,
+                      'address_number': restaurant.address.address_number,
                       'banner': restaurant.banner,
                       'delivery_price': restaurant.delivery_price,
                       'delivery_min_time': restaurant.delivery_min_time,

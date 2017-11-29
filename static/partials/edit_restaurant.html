@@ -3,6 +3,7 @@
     <div class="row">
         <div class="col-lg-6">
             <h2>Étterem szerkesztése</h2>
+            <p>{{ restaurant.restaurant_city }}</p>
             <form ng-submit="editRestaurant()">
                 <table class="table table-borderless">
                     <thead>
@@ -12,8 +13,8 @@
                         <td class="col-md-3" style="vertical-align: middle">Étterem neve</td>
                         <td>
                             <input type="text" class="form-control" id="restaurantNameField" placeholder="Étterem neve"
-                                   ng-init="modified_restaurant.restaurant_name = restaurant.restaurant_name"
-                                   ng-model="modified_restaurant.restaurant_name">
+                                   ng-init="restaurant.restaurant_name"
+                                   ng-model="restaurant.restaurant_name">
                         </td>
                     </tr>
                     <tr>
@@ -21,28 +22,28 @@
                         </td>
                         <td>
                             <input type="text" class="form-control" id="restaurantDescriptionField" placeholder="Leírás"
-                                   ng-model="modified_restaurant.restaurant_description" required>
+                                   ng-model="restaurant.restaurant_description" required>
                         </td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle">Város</td>
                         <td>
                             <input type="text" class="form-control" id="addressCityField" placeholder="Város"
-                                   ng-model="modified_restaurant.address_city" required>
+                                   ng-model="restaurant.address_city"  required>
                         </td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle">Utca</td>
                         <td>
                             <input type="text" class="form-control" id="addressStreetField" placeholder="Utca"
-                                   ng-model="modified_restaurant.address_street" required>
+                                   ng-model="restaurant.address_street" required>
                         </td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle">Házszám</td>
                         <td>
                             <input type="text" class="form-control" id="addressNumberField" placeholder="Házszám"
-                                   ng-model="modified_restaurant.address_number" required>
+                                   ng-model="restaurant.address_number" required>
                         </td>
                     </tr>
                     <tr>
@@ -50,7 +51,7 @@
                         <td>
                             <input type="text" class="form-control" id="deliveryPriceField"
                                    placeholder="Kiszállítási költség"
-                                   ng-model="modified_restaurant.delivery_price" required>
+                                   ng-model="restaurant.delivery_price" required>
                         </td>
                     </tr>
                     <tr>
@@ -58,7 +59,7 @@
                         <td>
                             <input type="text" class="form-control" id="deliveryMinTimeField"
                                    placeholder="Minimális kiszállítási idő"
-                                   ng-model="modified_restaurant.delivery_min_time" required>
+                                   ng-model="restaurant.delivery_min_time" required>
                         </td>
                     </tr>
                     <tr>
@@ -66,7 +67,7 @@
                         <td>
                             <input type="text" class="form-control" id="deliveryMaxTimeField"
                                    placeholder="Maximális kiszállítási idő"
-                                   ng-model="modified_restaurant.delivery_max_time" required>
+                                   ng-model="restaurant.delivery_max_time" required>
                         </td>
                     </tr>
                     <tr>
@@ -74,7 +75,7 @@
                         <td>
                             <input type="number" class="form-control" id="minOrderField"
                                    placeholder="Minimális rendelés"
-                                   ng-model="modified_restaurant.min_order" required>
+                                   ng-model="restaurant.min_order" required>
                         </td>
                     </tr>
                     <tr>
@@ -83,7 +84,7 @@
                         </td>
                         <td><input type="password" class="form-control" id="currentPasswordField"
                                    placeholder="Jelenlegi jelszó"
-                                   ng-model="modified_restaurant.current_password" required>
+                                   ng-model="restaurant.current_password" required>
 
                         </td>
                     </tr>

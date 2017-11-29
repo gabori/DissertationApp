@@ -304,7 +304,6 @@ class PaymentTable(db.Model):
 
     def to_dict(self):
         fields = {
-            'payment_id': self.payment_id,
             'cash': self.cash,
             'creditcard': self.creditcard,
             'szep_card': self.szep_card,
