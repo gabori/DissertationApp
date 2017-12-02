@@ -61,7 +61,7 @@ app.config(function ($stateProvider) {
             controller: "mealsSettingController"
         })
         .state("/add-meal", {
-            url: "/add-meal",
+            url: "/add-meal/:restaurant_id",
             templateUrl: "/static/partials/add_meal.html",
             controller: "mealsAddController"
         })
@@ -150,7 +150,6 @@ app.controller("userController", function ($scope, $rootScope, $http, $state) {
 app.controller("restaurantController", function ($scope, $rootScope, $http, $state, $stateParams, $cookieStore) {
     $http.get("/restaurants").then(
         function (response) {
-
             $scope.restaurants = response.data;
             console.log($scope.restaurants)
         });
@@ -176,13 +175,15 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
         function (response) {
             $scope.cities = response.data;
         });
-    $http.get("/payments").then(
-        function (response) {
-            $scope.payments = response.data;
-        });
+    // $http.get("/payments").then(
+    //     function (response) {
+    //         $scope.payments = response.data;
+        // });
 
     $scope.addRestaurant = function () {
+
         var in_data = {'restaurant': $scope.restaurant, 'username': $rootScope.globals.currentUser.username};
+        console.log(in_data)
         $http.post("/addRestaurant", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
@@ -195,7 +196,7 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
 
 app.controller("mealsController", function ($scope, $rootScope, $http, $state, $stateParams, $cookieStore) {
     $scope.pay = undefined;
-    $http.get("/payments").then(
+    $http.get("/payments", {params: {restaurant_id: $stateParams.restaurant_id}}).then(
         function (response) {
             $scope.payments = response.data;
         });
@@ -276,12 +277,10 @@ app.controller("mealsSettingController", function ($scope, $rootScope, $http, $s
     };
 });
 
-app.controller("mealsAddController", function ($scope, $rootScope, $http, $state) {
+app.controller("mealsAddController", function ($scope, $rootScope, $http, $stateParams) {
 
     $scope.addMeal = function () {
-        var in_data = {'meal': $scope.meal, 'username': $rootScope.globals.currentUser.username};
-        console.log(in_data)
-        console.log($scope.meal)
+        var in_data = {'meal': $scope.meal, 'restaurant_id': $stateParams.restaurant_id};
         $http.post("/addMeal", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
