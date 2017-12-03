@@ -24,7 +24,10 @@ var app = angular.module("restaurants", ["Authentication", "ngCookies", "ui.rout
         });
     }]);
 ;
-app.config(function ($stateProvider) {
+app.config(function ($stateProvider, $urlRouterProvider) {
+
+    $urlRouterProvider.otherwise('/404');
+
     $stateProvider
         .state("/", {
             url: "",
@@ -48,7 +51,7 @@ app.config(function ($stateProvider) {
         .state("/myRestaurant", {
             url: "/myRestaurant/:username",
             templateUrl: "/static/partials/my_restaurants.html",
-            controller: "restaurantController"
+            controller: "myRestaurantController"
         })
         .state("/list-meals", {
             url: "/list-meals/:restaurant_id",
@@ -68,7 +71,7 @@ app.config(function ($stateProvider) {
         .state("/addRestaurant", {
             url: "/addRestaurant",
             templateUrl: "/static/partials/add_restaurant.html",
-            controller: "restaurantController"
+            controller: "addRestaurantController"
         })
         .state("/my-orders", {
             url: "/my-orders/:restaurant_id",
@@ -103,10 +106,14 @@ app.config(function ($stateProvider) {
             templateUrl: "/static/partials/statistics.html",
             controller: "statisticsController"
         })
+        .state("/404", {
+            url: "/404",
+            templateUrl: "/static/partials/404.html"
+        })
 });
 
-app.controller("mainController", function ($scope, $rootScope) {
-    $rootScope.loginUser = {};
+app.controller("mainController", function () {
+
 });
 
 app.controller("loginController", ['$scope', '$rootScope', '$location', 'AuthenticationService',
@@ -117,23 +124,19 @@ app.controller("loginController", ['$scope', '$rootScope', '$location', 'Authent
         $scope.login = function () {
             $scope.dataLoading = true;
             AuthenticationService.Login($scope.username, $scope.password, function (response) {
-                console.log(response)
                 if (response.status == 200) {
                     $scope.user_role = response.data.user_role
                     AuthenticationService.SetCredentials($scope.username, $scope.password, $scope.user_role);
                     $location.path('/startpage');
                 } else {
-                    console.log("baj van")
                     $scope.error = "A felhasználónév vagy a jelszó helytelen!"
-                    console.log($scope.error)
                     $scope.dataLoading = false;
                 }
             });
         };
     }]);
 
-app.controller("userController", function ($scope, $rootScope, $http, $state) {
-    console.log($rootScope.user)
+app.controller("userController", function ($scope, $rootScope, $http) {
 
     $scope.registration = function () {
         $http.post("/registration", $scope.user).then(
@@ -151,17 +154,12 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
     $http.get("/restaurants").then(
         function (response) {
             $scope.restaurants = response.data;
-            console.log($scope.restaurants)
         });
     $cookieStore.remove('cart');
     $cookieStore.remove('amount');
     $rootScope.cart = []
     $rootScope.amount = 0
     $state.reload;
-    $http.get("/myRestaurant", {params: {username: $stateParams.username}}).then(
-        function (response) {
-            $scope.my_restaurants = response.data;
-        });
 
     $http.get("/users").then(
         function (response) {
@@ -175,15 +173,14 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
         function (response) {
             $scope.cities = response.data;
         });
-    // $http.get("/payments").then(
-    //     function (response) {
-    //         $scope.payments = response.data;
-        // });
 
+});
+
+app.controller("addRestaurantController", function ($scope, $rootScope, $http) {
     $scope.addRestaurant = function () {
 
         var in_data = {'restaurant': $scope.restaurant, 'username': $rootScope.globals.currentUser.username};
-        console.log(in_data)
+        console.log($scope.restaurant)
         $http.post("/addRestaurant", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
@@ -192,6 +189,27 @@ app.controller("restaurantController", function ($scope, $rootScope, $http, $sta
                 $scope.statusCode = response.status;
             });
     };
+});
+
+app.controller("myRestaurantController", function ($scope, $rootScope, $http, $state, $stateParams) {
+    $http.get("/restaurants").then(
+        function (response) {
+            $scope.restaurants = response.data;
+        });
+
+    $http.get("/myRestaurant", {params: {username: $stateParams.username}}).then(
+        function (response) {
+            $scope.my_restaurants = response.data;
+        });
+
+    $http.get("/users").then(
+        function (response) {
+            $scope.users = response.data;
+        });
+    $http.get("/orders").then(
+        function (response) {
+            $scope.orders = response.data;
+        });
 });
 
 app.controller("mealsController", function ($scope, $rootScope, $http, $state, $stateParams, $cookieStore) {
@@ -206,7 +224,7 @@ app.controller("mealsController", function ($scope, $rootScope, $http, $state, $
             $scope.meals = response.data;
         });
     $scope.restaurant_id = $stateParams.restaurant_id
-    console.log($scope.restaurant_id)
+
 
     $http.get("/types", {params: {restaurant_id: $scope.restaurant_id}}).then(
         function (response) {
@@ -297,7 +315,6 @@ app.controller("ordersController", function ($scope, $rootScope, $http, $statePa
     $http.get("/myOrders", {params: {username: $scope.username, restaurant_id: $stateParams.restaurant_id}}).then(
         function (response) {
             $scope.orders = response.data;
-            console.log($scope.orders)
         });
 });
 
@@ -306,13 +323,11 @@ app.controller("userSettingsController", function ($scope, $rootScope, $http, $s
     $http.get("/userData", {params: {username: $scope.current_user}}).then(
         function (response) {
             $scope.user = response.data;
-            console.log($scope.user)
         });
 
 
     $scope.editUser = function () {
         var in_data = {'modified_user': $scope.modified_user, 'username': $rootScope.globals.currentUser.username};
-        console.log($scope.modified_user)
         $http.post("/editUser", in_data).then(
             function (response) {
                 $scope.statusCode = response.status;
@@ -332,7 +347,6 @@ app.controller("userProfileController", function ($scope, $rootScope, $http, $st
     $http.get("/userData", {params: {username: $scope.current_user}}).then(
         function (response) {
             $scope.user = response.data;
-            console.log($scope.user)
         });
 });
 
@@ -341,7 +355,6 @@ app.controller("editRestaurantController", function ($scope, $rootScope, $http, 
     $http.get("/restaurantData", {params: {restaurant_id: $stateParams.restaurant_id}}).then(
         function (response) {
             $rootScope.restaurant = response.data;
-            console.log($scope.restaurant)
         });
 
 

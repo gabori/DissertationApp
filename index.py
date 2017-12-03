@@ -116,6 +116,7 @@ def get_payments():
 @app.route('/addRestaurant', methods=['POST'])
 def addRestaurant():
     newRestaurant = request.json
+    print(newRestaurant["restaurant"]['restaurant_name'])
     restaurant = query_restaurant_by_name(newRestaurant)
     if restaurant is not None:
         response = Response(status=409)
