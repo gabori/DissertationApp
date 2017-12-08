@@ -22,6 +22,7 @@ def index():
 @app.route('/registration', methods=['POST'])
 def registration():
     newUser = request.json
+
     user = query_user_by_name(newUser)
     if user is not None:
         response = Response(status=409)
@@ -44,6 +45,15 @@ def checkout():
 def get_users():
     users = query_users()
     response = Response(response=json.dumps(users), status=200, mimetype='application/json')
+    return response
+
+
+@app.route('/getUserByName', methods=['GET'])
+def get_user_by_name():
+    username = request.args.get("current_user")
+    print(username)
+    user = query_user_by_username(username)
+    response = Response(response=json.dumps(user.to_dict()), status=200, mimetype='application/json')
     return response
 
 
@@ -116,7 +126,7 @@ def get_payments():
 @app.route('/addRestaurant', methods=['POST'])
 def addRestaurant():
     newRestaurant = request.json
-    print(newRestaurant["restaurant"]['restaurant_name'])
+    print(newRestaurant)
     restaurant = query_restaurant_by_name(newRestaurant)
     if restaurant is not None:
         response = Response(status=409)
@@ -169,6 +179,12 @@ def mealTypeStat():
     response = Response(response=json.dumps(meals), status=200, mimetype='application/json')
     return response
 
+@app.route('/orderDateStat', methods=['GET'])
+def orderDateStat():
+    restaurant_id = request.args.get('restaurant_id')
+    dates_result = query_order_datetime_stat(restaurant_id)
+    response = Response(response=json.dumps(dates_result), status=200, mimetype='application/json')
+    return response
 
 @app.route('/userData', methods=['GET'])
 def userData():

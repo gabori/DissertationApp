@@ -214,11 +214,16 @@ app.controller("myRestaurantController", function ($scope, $rootScope, $http, $s
 
 app.controller("mealsController", function ($scope, $rootScope, $http, $state, $stateParams, $cookieStore) {
     $scope.pay = undefined;
+
     $http.get("/payments", {params: {restaurant_id: $stateParams.restaurant_id}}).then(
         function (response) {
             $scope.payments = response.data;
         });
-
+    $http.get("/getUserByName", {params: {current_user: $rootScope.globals.currentUser.username}}).then(
+        function (response) {
+            $scope.user = response.data;
+        });
+    $rootScope.point = 0
     $http.get("/meals", {params: {restaurant_id: $stateParams.restaurant_id}}).then(
         function (response) {
             $scope.meals = response.data;
@@ -234,13 +239,28 @@ app.controller("mealsController", function ($scope, $rootScope, $http, $state, $
     if ($rootScope.cart === undefined) {
         $rootScope.cart = [];
     }
-    //$rootScope.amount = 0;
+    $rootScope.bol = false;
+
+
+
+    $scope.subPoint = function (point) {
+        if (point > $rootScope.amount) {
+            $rootScope.point = point - $rootScope.amount;
+            $rootScope.amount = 0;
+        } else {
+            $rootScope.amount = $rootScope.amount - point;
+            $rootScope.point = -1;
+        }
+        $cookieStore.put('amount', $rootScope.amount);
+        $rootScope.bol = true
+    };
+    console.log($scope.bol)
+
     $scope.addToCart = function (meal) {
         $rootScope.cart.push(meal);
         $rootScope.amount = $rootScope.amount + meal.meal_price;
         $cookieStore.put('cart', $rootScope.cart);
         $cookieStore.put('amount', $rootScope.amount);
-
     };
 
     $scope.removeFromCart = function (meal) {
@@ -251,7 +271,9 @@ app.controller("mealsController", function ($scope, $rootScope, $http, $state, $
     };
 
     $scope.checkout = function () {
+        console.log($rootScope.point)
         var in_data = {
+            'point': $rootScope.point,
             'cart': $rootScope.cart,
             'username': $rootScope.globals.currentUser.username,
             'payment': $scope.pay

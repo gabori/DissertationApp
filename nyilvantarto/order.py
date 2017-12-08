@@ -10,13 +10,19 @@ def checkout_order(newOrder):
         order_price += i['meal_price']
         meal_id = i['meal_id']
     payment = newOrder['payment']
+    param_point = newOrder['point']
     # print(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     point = (order_price // 1000) * 3
     meal = Meal.query.filter(Meal.meal_id == meal_id).first()
     user = User.query.filter(User.user_name == newOrder['username']).first()
-    new_Order = Order(order_date=datetime.datetime.now(), user_id=user.user_id, order_price=order_price,
+    new_Order = Order(order_date=strftime("%Y-%m-%d %H:%M:%S", gmtime()), user_id=user.user_id, order_price=order_price,
                       restaurant_id=meal.restaurant_id, payment_type=payment['payment'])
-    user.point = user.point + point
+    if param_point == 0:
+        user.point = user.point + point
+    elif param_point == -1:
+        user.point = point
+    else:
+        user.point = param_point + point
     db.session.add(new_Order)
     db.session.commit()
     for i in newOrder['cart']:

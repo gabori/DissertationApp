@@ -86,11 +86,17 @@
                             </p>
                         </div>
                     </div>
+
                     <div ng-if="statusCode != 200">
+                        <button ng-if="bol == false" class="btn btn-info"
+                                ng-click="subPoint(user.point)"> {{ user.point }} pontod van,
+                            váltsd be őket!
+                        </button>
                         <button type="submit" class="btn btn-info" ng-click="checkout()">Fizetés</button>
                         <button type="button" class="btn btn-info" data-dismiss="modal">Mégse</button>
                     </div>
-                    <button ng-if="statusCode == 200" type="button" class="btn btn-info" data-dismiss="modal">Ok</button>
+                    <button ng-if="statusCode == 200" type="button" class="btn btn-info" data-dismiss="modal">Ok
+                    </button>
                 </div>
             </form>
         </div>

@@ -3,5 +3,5 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.secret_key = "username"
-app.config.from_object('config')
+app.config.from_object('config.BaseConfiguration')
 db = SQLAlchemy(app)

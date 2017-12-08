@@ -18,7 +18,6 @@ def query_payments(restaurant_id):
 
 def query_payment_type_stat(username, restaurant_id):
     user = User.query.filter(User.user_name == username).first()
-    # restaurant = Restaurant.query.filter(Restaurant.restaurant_id == restaurant_id).first()
     payment = PaymentTable.query.filter(PaymentTable.restaurant_id == restaurant_id).first()
     payments = []
     for key, value in payment.to_dict().items():

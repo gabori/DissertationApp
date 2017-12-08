@@ -1,60 +1,91 @@
 <div>
-    <button class="btn btn-info" id="payment">Fizetési módok gyakorisága</button>
-    <button class="btn btn-info" id="meal_type">Étel típusok rendelésének gyakorisága</button>
+    <select class="form-control" id="select">
+        <option value="" disabled selected>Válassz egy statisztikát</option>
+        <option value="payment">Fizetési módok gyakorisága</option>
+        <option value="meal_type">Étel típusok rendelésének gyakorisága</option>
+        <option value="date_type">Rendelések időbeli eloszlása</option>
+    </select>
     <script>
         $(document).ready(function () {
-            $('#payment').click(function () {
-                var list = [];
-                console.log(window.location.hash.split('/').slice(-1)[0])
-                $.getJSON("/paymentTypeStat", {
-                    restaurant_id: window.location.hash.split('/').slice(-1)[0]
-                }, function (data) {
+            $("#select").change(function () {
+                if ($("#select").val() == "payment") {
+                    var list = [];
+                    console.log(window.location.hash.split('/').slice(-1)[0])
+                    $.getJSON("/paymentTypeStat", {
+                        restaurant_id: window.location.hash.split('/').slice(-1)[0]
+                    }, function (data) {
 
-                    var chart = new CanvasJS.Chart("chartContainer", {
-                        animationEnabled: true,
-                        theme: "light2", // "light1", "light2", "dark1", "dark2"
-                        title: {
-                            text: "Fizetési módok gyakorisága"
-                        },
-                        axisY: {
-                            title: "Darab"
-                        },
-                        data: [{
-                            type: "column",
-                            showInLegend: false,
-                            dataPoints: data
-                        }]
+                        var chart = new CanvasJS.Chart("chartContainer", {
+                            animationEnabled: true,
+                            title: {
+                                text: "Fizetési módok gyakorisága"
+                            },
+                            data: [{
+                                type: "pie",
+                                startAngle: 240,
+                                yValueFormatString: "##0.00\"%\"",
+                                indexLabel: "{label} {y}",
+                                dataPoints: data
+                            }]
+                        });
+                        chart.render();
+
+                    })
+                }
+                if (($("#select").val() == "meal_type")) {
+                    var list = [];
+                    console.log(window.location.hash.split('/').slice(-1)[0])
+                    $.getJSON("/mealTypeStat", {
+                        restaurant_id: window.location.hash.split('/').slice(-1)[0]
+                    }, function (data) {
+
+                        var chart = new CanvasJS.Chart("chartContainer", {
+                            animationEnabled: true,
+                            theme: "light2", // "light1", "light2", "dark1", "dark2"
+                            title: {
+                                text: "Étel típusok rendelésének gyakorisága"
+                            },
+                            axisY: {
+                                title: "darab"
+                            },
+                            data: [{
+                                type: "column",
+                                showInLegend: false,
+                                dataPoints: data
+                            }]
+                        });
+                        chart.render();
+                    })
+
+                }
+                if (($("#select").val() == "date_type")) {
+                    var list = [];
+                    console.log(window.location.hash.split('/').slice(-1)[0])
+                    $.getJSON("/orderDateStat", {
+                        restaurant_id: window.location.hash.split('/').slice(-1)[0]
+                    }, function (data) {
+                        var chart = new CanvasJS.Chart("chartContainer", {
+                            animationEnabled: true,
+                            title: {
+                                text: "Rendelések számának napi eloszlása"
+                            },
+                            axisY: {
+                                title: "darab"
+                            },
+                            axisX: {
+                                title: "óra"
+                            },
+                            data: [{
+                                yValueFormatString: "#,### db",
+                                xValueFormatString: "YYYY",
+                                type: "spline",
+                                dataPoints: data
+                            }]
+                        });
+                        chart.render();
                     });
-                    chart.render();
-                })
-            });
-
-            $('#meal_type').click(function () {
-                var list = [];
-                console.log(window.location.hash.split('/').slice(-1)[0])
-                $.getJSON("/mealTypeStat", {
-                    restaurant_id: window.location.hash.split('/').slice(-1)[0]
-                }, function (data) {
-
-                    var chart = new CanvasJS.Chart("chartContainer", {
-                        animationEnabled: true,
-                        theme: "light2", // "light1", "light2", "dark1", "dark2"
-                        title: {
-                            text: "Étel típusok rendelésének gyakorisága"
-                        },
-                        axisY: {
-                            title: "Darab"
-                        },
-                        data: [{
-                            type: "column",
-                            showInLegend: false,
-                            dataPoints: data
-                        }]
-                    });
-                    chart.render();
-                })
+                }
             })
-
         });
     </script>
 

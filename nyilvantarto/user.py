@@ -9,6 +9,11 @@ def query_user_by_name(newUser):
     return user
 
 
+def query_user_by_username(username):
+    user = User.query.filter(User.user_name == username).first()
+    return user
+
+
 def user_registration(newUser):
     new_user = User(first_name=newUser['first_name'], last_name=newUser['last_name'],
                     user_name=newUser['user_name'],
@@ -66,6 +71,7 @@ def query_user_data(username):
 
 
 def user_login(current_user):
+    user = 0;
     user_result = User.query.all()
     for i in user_result:
         if current_user['username'] == i.user_name and current_user['password'] == i.password:
@@ -78,7 +84,7 @@ def user_login(current_user):
             token = jwt.encode(payload=payload, key="SECRET_KEY")
             login_user = {'username': i.user_name, 'password': i.password, 'user_role': i.user_role,
                           'token': token.decode("utf-8")}
-            global user;
+
             user = 1
             break;
     if user != 1:

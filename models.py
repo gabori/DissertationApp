@@ -145,7 +145,7 @@ class Meal(db.Model):
         foreign_keys='(Meal.meal_id)',
         uselist=False, viewonly=True)
 
-    # restaurant = relationhip("Restaurant", back_populates="meals")
+
 
     def to_dict(self):
         fields = {
@@ -185,8 +185,6 @@ class Address(db.Model):
         foreign_keys='(Address.restaurant_id)',
         uselist=False, viewonly=True)
 
-    # user = relationship("User", back_populates="addresses")
-    # restaurant = relationship("Restaurant", uselist=False, back_populates = "restaurant")
 
     def to_dict(self):
         fields = {
@@ -206,7 +204,7 @@ class Address(db.Model):
 class Order(db.Model):
     __tablename__ = 'orders'
     order_id = Column(Integer, primary_key=True)
-    order_date = Column(Date)
+    order_date = Column(String)
     order_price = Column(Integer)
     user_id = Column(Integer, ForeignKey('users.user_id'))
     restaurant_id = Column(Integer, ForeignKey('restaurants.restaurant_id'))
@@ -257,11 +255,7 @@ class Order_meals(db.Model):
         foreign_keys='(Order_meals.order_id)',
         uselist=False, viewonly=True)
 
-    """meals = relationship(
-        'Meal',
-        primaryjoin='Order_meals.order_meals_id==Meal.order_meals_id',
-        foreign_keys='(Order_meals.order_meals_id)',
-        uselist=True, viewonly=True)"""
+
     meals = relationship(
         'Meal',
         primaryjoin='Order_meals.meal_id==Meal.meal_id',

@@ -1,5 +1,8 @@
 from app import db
 from models import Restaurant, User, Order, Meal
+from datetime import datetime
+from collections import Counter
+import collections
 
 
 def query_meals(restaurant_id):
@@ -65,7 +68,6 @@ def edit_meal(params):
 
 def query_meal_type_stat(username, restaurant_id):
     user = User.query.filter(User.user_name == username).first()
-    # restaurant = Restaurant.query.filter(Restaurant.restaurant_id == restaurant_id).first()
     meal_types = Meal.query.filter(Meal.restaurant_id == restaurant_id).group_by(Meal.meal_type).all()
     orders_result = Order.query.filter(Order.restaurant_id == restaurant_id).all()
     meals = []
@@ -79,3 +81,24 @@ def query_meal_type_stat(username, restaurant_id):
                             tmp += 1
         meals.append({"y": tmp, "label": i.meal_type})
     return meals
+
+
+def query_order_datetime_stat(restaurant_id):
+    orders_result = Order.query.filter(Order.restaurant_id == restaurant_id).all()
+    dates = []
+    for i in orders_result:
+        dates.append(datetime.strptime(i.order_date, "%Y-%m-%d %H:%M:%S").hour)
+
+    a = dict(Counter(dates))
+    ordered_a = collections.OrderedDict(sorted(a.items()))
+    values = []
+    keys = []
+    dates_result = []
+    for i in ordered_a.values():
+        values.append(i)
+    for i in ordered_a:
+        keys.append(i)
+    for i in range(0, len(values)):
+        dates_result.append({"y": values[i], "label": keys[i]})
+
+    return dates_result
